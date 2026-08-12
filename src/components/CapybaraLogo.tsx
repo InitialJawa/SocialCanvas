@@ -1,0 +1,140 @@
+import React from 'react';
+
+export function CapybaraLogo({ className = "w-8 h-8" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 512 512" 
+      className={className} 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer dark border */}
+      <circle cx="256" cy="256" r="240" fill="#2E2018" />
+      {/* Inner cream circle background */}
+      <circle cx="256" cy="256" r="226" fill="#FBF4EA" />
+      
+      {/* Capybara Body & Head group */}
+      <g>
+        {/* Ears */}
+        <path d="M375 160 C395 165, 410 195, 395 215 C385 225, 365 215, 365 195 Z" fill="#754E38" stroke="#2E2018" strokeWidth="12" strokeLinejoin="round" />
+        <path d="M280 245 C275 235, 290 220, 305 225 C315 230, 310 248, 295 250 Z" fill="#754E38" stroke="#2E2018" strokeWidth="12" />
+        
+        {/* Capybara main body outline */}
+        <path 
+          d="M380 205 
+             C350 120, 180 140, 155 240 
+             C145 280, 115 315, 115 365
+             C115 450, 240 480, 380 435
+             C415 420, 385 245, 380 205 Z" 
+          fill="#E59F69" 
+          stroke="#2E2018" 
+          strokeWidth="12" 
+          strokeLinejoin="round" 
+        />
+
+        {/* Snout Area (Muzzle) - Dark Brown */}
+        <path 
+          d="M158 240 
+             C152 280, 195 320, 250 320 
+             C300 320, 315 285, 310 245 
+             C305 205, 230 185, 175 195 
+             C162 198, 158 215, 158 240 Z" 
+          fill="#78533E" 
+          stroke="#2E2018" 
+          strokeWidth="12" 
+          strokeLinejoin="round" 
+        />
+
+        {/* Eyes */}
+        <circle cx="215" cy="225" r="14" fill="#2E2018" />
+        <circle cx="282" cy="245" r="12" fill="#2E2018" />
+        
+        {/* Nose / Mouth Details */}
+        <path d="M235 230 L235 275" stroke="#2E2018" strokeWidth="12" strokeLinecap="round" />
+        <path d="M210 270 C220 285, 235 285, 235 275 C235 285, 250 285, 260 270" stroke="#2E2018" strokeWidth="12" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* Eye sleeping line right side */}
+        <path d="M342 258 L360 264" stroke="#2E2018" strokeWidth="10" strokeLinecap="round" />
+
+        {/* Pink Blush Cheek */}
+        <circle cx="318" cy="285" r="22" fill="#F48B8B" />
+        <ellipse cx="318" cy="285" rx="14" ry="18" fill="#F36B6B" />
+
+        {/* Left Arm holding tulip */}
+        <path 
+          d="M142 360 
+             C132 320, 205 320, 205 360 
+             C205 385, 162 390, 142 360 Z" 
+          fill="#BD7745" 
+          stroke="#2E2018" 
+          strokeWidth="12" 
+          strokeLinejoin="round" 
+        />
+
+        {/* Right Arm wrap */}
+        <path 
+          d="M185 390
+             C195 440, 250 480, 290 480" 
+          stroke="#2E2018" 
+          strokeWidth="12" 
+          strokeLinecap="round" 
+          fill="none"
+        />
+
+        {/* Tulip stem & leaves */}
+        <path d="M205 360 C185 380, 160 410, 200 420" stroke="#5E8C31" strokeWidth="12" fill="none" strokeLinecap="round" />
+        <path d="M192 370 C215 390, 275 425, 240 435" stroke="#5E8C31" strokeWidth="10" fill="none" strokeLinecap="round" />
+        
+        {/* Leaf 1 */}
+        <path 
+          d="M175 395 
+             C155 425, 142 450, 152 460 
+             C165 470, 190 430, 200 415 Z" 
+          fill="#7AA843" 
+          stroke="#2E2018" 
+          strokeWidth="10" 
+          strokeLinejoin="round" 
+        />
+        {/* Leaf 2 */}
+        <path 
+          d="M200 375 
+             C225 385, 245 400, 250 410 
+             C252 418, 230 420, 215 405 Z" 
+          fill="#7AA843" 
+          stroke="#2E2018" 
+          strokeWidth="10" 
+          strokeLinejoin="round" 
+        />
+
+        {/* Tulip flower - Beautiful Yellow */}
+        <g transform="translate(198, 290) rotate(10)">
+          <path 
+            d="M5 60 
+               C-25 45, -25 5, 15 5 
+               C55 5, 55 45, 25 60 
+               C18 64, 12 64, 5 60 Z" 
+            fill="#FFE15D" 
+            stroke="#2E2018" 
+            strokeWidth="12" 
+            strokeLinejoin="round" 
+          />
+          <path 
+            d="M-5 10 
+               C5 25, 5 45, -2 58" 
+            stroke="#2E2018" 
+            strokeWidth="10" 
+            fill="none" 
+            strokeLinecap="round" 
+          />
+          <path 
+            d="M18 6 C12 20, 12 40, 15 55" 
+            stroke="#2E2018" 
+            strokeWidth="10" 
+            fill="none" 
+            strokeLinecap="round" 
+          />
+        </g>
+      </g>
+    </svg>
+  );
+}

@@ -1,0 +1,801 @@
+import React, { useRef, useState, useEffect } from 'react';
+import { CommentState, Platform } from '../types';
+import { TikTokPreview } from './previews/TikTokPreview';
+import { InstagramPreview } from './previews/InstagramPreview';
+import { YouTubePreview } from './previews/YouTubePreview';
+import { TwitterPreview } from './previews/TwitterPreview';
+import { KickLivePreview } from './previews/KickLivePreview';
+import { IGLivePreview } from './previews/IGLivePreview';
+import { toPng, toJpeg } from 'html-to-image';
+import { Toolbar } from './Canvas/Toolbar';
+import { ExportCard } from './Canvas/ExportCard';
+import { 
+  TikTokColoredIcon, 
+  InstagramColoredIcon, 
+  YouTubeColoredIcon, 
+  TwitterColoredIcon, 
+  KickColoredIcon 
+} from './icons';
+import { motion, useMotionValue } from 'motion/react';
+import { Sun, Moon, X, Trash2, Shuffle, Check, MessageSquare, Highlighter, EyeOff, Scissors, RotateCcw, Image } from 'lucide-react';
+import { maleUsernames, femaleUsernames, getRandomAvatarUrl } from '../utils';
+
+interface Props {
+  state: CommentState;
+  onStateChange: (state: Partial<CommentState>) => void;
+  isPremium: boolean;
+  onUpgradeClick: () => void;
+  incrementExportCount: () => boolean;
+  exportCount: number;
+  onSaveToHistory?: (state: CommentState) => void;
+  editingItemId?: string | null;
+  setEditingItemId?: (id: string | null) => void;
+  isAddingNew?: boolean;
+  setIsAddingNew?: (adding: boolean) => void;
+  onAddSnapshot?: (url: string) => void;
+  onRandomize?: () => void;
+}
+
+export function PreviewArea({ 
+  state, 
+  onStateChange, 
+  isPremium, 
+  onUpgradeClick, 
+  incrementExportCount, 
+  exportCount, 
+  onSaveToHistory,
+  editingItemId: propEditingItemId,
+  setEditingItemId: propSetEditingItemId,
+  isAddingNew: propIsAddingNew,
+  setIsAddingNew: propSetIsAddingNew,
+  onAddSnapshot,
+  onRandomize
+}: Props) {
+  const previewRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [showGrid, setShowGrid] = useState(false);
+  const [bgStyle, setBgStyle] = useState<'checkerboard' | 'solid' | 'transparent' | 'gradient'>('gradient');
+  const [showHint, setShowHint] = useState(true);
+  
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const centerCanvas = () => {
+    setScale(1);
+    x.set(0);
+    y.set(0);
+  };
+
+  const handleExport = async (exportScale: number, format: 'png' | 'jpg' | 'webp' | 'transparent') => {
+    if (!previewRef.current) return;
+    
+    // Check and increment export limit
+    const allowed = incrementExportCount();
+    if (!allowed) {
+      onUpgradeClick();
+      return;
+    }
+
+    // Save current design to history automatically
+    if (onSaveToHistory) {
+      onSaveToHistory(state);
+    }
+    
+    setIsExporting(true);
+    try {
+      // Temporarily reset transform for clean export
+      const originalTransform = previewRef.current.style.transform;
+      previewRef.current.style.transform = `scale(1) translate(0px, 0px)`;
+      
+      await new Promise(r => setTimeout(r, 100)); // wait for dom to update
+      
+      const isJpg = format === 'jpg';
+      const options = {
+        cacheBust: true,
+        pixelRatio: exportScale,
+        backgroundColor: isJpg ? (state.theme === 'dark' ? '#000000' : '#ffffff') : 'transparent',
+        style: { margin: '0' },
+        filter: (node: HTMLElement) => {
+          if (node.classList && (node.classList.contains('no-export') || node.getAttribute?.('data-html2canvas-ignore') === 'true')) {
+            return false;
+          }
+          return true;
+        },
+        styleSheetsFilter: (styleSheet: CSSStyleSheet) => {
+          try {
+            const rules = styleSheet.cssRules;
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+      };
+
+      let dataUrl = '';
+      if (format === 'jpg') {
+        dataUrl = await toJpeg(previewRef.current, options);
+      } else {
+        dataUrl = await toPng(previewRef.current, options);
+      }
+      
+      const link = document.createElement('a');
+      link.download = `sosmedcomment-${state.platform}-${Date.now()}.${format === 'transparent' ? 'png' : format}`;
+      link.href = dataUrl;
+      link.click();
+      
+      previewRef.current.style.transform = originalTransform;
+    } catch (err) {
+      console.error('Failed to export', err);
+      alert('Gagal mengekspor gambar.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleSnapshot = async () => {
+    if (!previewRef.current || !onAddSnapshot) return;
+    try {
+      const originalTransform = previewRef.current.style.transform;
+      previewRef.current.style.transform = `scale(1) translate(0px, 0px)`;
+      await new Promise(r => setTimeout(r, 100)); // wait for dom to update
+      
+      const options = {
+        cacheBust: true,
+        pixelRatio: 1,
+        backgroundColor: 'transparent',
+        style: { margin: '0' },
+        filter: (node: HTMLElement) => {
+          if (node.classList && (node.classList.contains('no-export') || node.getAttribute?.('data-html2canvas-ignore') === 'true')) {
+            return false;
+          }
+          return true;
+        },
+        styleSheetsFilter: (styleSheet: CSSStyleSheet) => {
+          try {
+            const rules = styleSheet.cssRules;
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+      };
+
+      const dataUrl = await toPng(previewRef.current, options);
+      onAddSnapshot(dataUrl);
+      previewRef.current.style.transform = originalTransform;
+    } catch (err) {
+      console.error('Failed to create snapshot', err);
+    }
+  };
+
+  // Interactive Reply and Comments Modal States
+  const [localEditingItemId, localSetEditingItemId] = useState<string | null>(null);
+  const [localIsAddingNew, localSetIsAddingNew] = useState(false);
+
+  const editingItemId = propEditingItemId !== undefined ? propEditingItemId : localEditingItemId;
+  const setEditingItemId = propSetEditingItemId !== undefined ? propSetEditingItemId : localSetEditingItemId;
+  const isAddingNew = propIsAddingNew !== undefined ? propIsAddingNew : localIsAddingNew;
+  const setIsAddingNew = propSetIsAddingNew !== undefined ? propSetIsAddingNew : localSetIsAddingNew;
+
+  const [modalUsername, setModalUsername] = useState('');
+  const [modalHandle, setModalHandle] = useState('');
+  const [modalText, setModalText] = useState('');
+  const [modalAvatar, setModalAvatar] = useState('');
+  const [modalVerified, setModalVerified] = useState(false);
+  const [modalTimestamp, setModalTimestamp] = useState('');
+  const [modalLikes, setModalLikes] = useState('');
+  const [modalCreatorLiked, setModalCreatorLiked] = useState(false);
+  const [modalPinned, setModalPinned] = useState(false);
+
+  const modalTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const applyModalFormat = (tag: string) => {
+    if (!modalTextareaRef.current) return;
+    const start = modalTextareaRef.current.selectionStart;
+    const end = modalTextareaRef.current.selectionEnd;
+    const text = modalText;
+    if (start !== end) {
+      const selectedText = text.substring(start, end);
+      const newText = text.substring(0, start) + `[${tag}]` + selectedText + `[/${tag}]` + text.substring(end);
+      setModalText(newText);
+      
+      setTimeout(() => {
+        modalTextareaRef.current?.focus();
+        modalTextareaRef.current?.setSelectionRange(start, start + tag.length * 2 + 5 + selectedText.length);
+      }, 0);
+    } else {
+      alert('Tandai / blok teks balasan terlebih dahulu!');
+    }
+  };
+
+  const resetModalFormat = () => {
+    const newText = modalText.replace(/\[\/?(highlight|blur|cut)\]/g, '');
+    setModalText(newText);
+  };
+
+  const handleReplyClick = (replyId?: string) => {
+    const isMale = Math.random() > 0.5;
+    const array = isMale ? maleUsernames : femaleUsernames;
+    const newName = array[Math.floor(Math.random() * array.length)];
+    const newHandle = `@${newName.replace(/\s+/g, '').toLowerCase()}${Math.floor(Math.random() * 100)}`;
+    
+    setModalUsername(newName);
+    setModalHandle(newHandle);
+    setModalAvatar(getRandomAvatarUrl(isMale ? 'male' : 'female'));
+    setModalVerified(false);
+    
+    const isLiveMode = state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live');
+    if (isLiveMode) {
+      setModalText('Komentar tambahan...');
+    } else {
+      const replyUser = replyId ? (state.nestedReplies?.find(r => r.id === replyId)?.username || state.username) : state.username;
+      setModalText(`@${replyUser.replace(/\s+/g, '').toLowerCase()} `);
+    }
+    
+    setModalTimestamp('1j lalu');
+    setModalLikes('0');
+    setModalCreatorLiked(false);
+    setModalPinned(false);
+    
+    setIsAddingNew(true);
+    setEditingItemId(null);
+  };
+
+  const handleEditReply = (itemId: string) => {
+    const isLiveMode = state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live');
+    const listKey = isLiveMode ? 'additionalComments' : 'nestedReplies';
+    const items = state[listKey] || [];
+    const item = (items as any[]).find((i: any) => i.id === itemId);
+    if (!item) return;
+
+    setEditingItemId(itemId);
+    setIsAddingNew(false);
+    setModalUsername(item.username || '');
+    setModalHandle(item.handle || '');
+    setModalAvatar(item.avatarUrl || '');
+    setModalVerified(item.isVerified || false);
+    setModalText(item.commentText || '');
+    setModalTimestamp(item.timestamp || '1j lalu');
+    setModalLikes(item.likeCount || '0');
+    setModalCreatorLiked(item.creatorLiked || false);
+    setModalPinned(item.isPinned || false);
+  };
+
+  const handleSaveModal = () => {
+    const isLiveMode = state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live');
+    const listKey = isLiveMode ? 'additionalComments' : 'nestedReplies';
+    const items = [...(state[listKey] || [])];
+
+    if (isAddingNew) {
+      const id = Math.random().toString(36).substring(7);
+      const newItem = isLiveMode ? {
+        id,
+        username: modalUsername,
+        avatarUrl: modalAvatar,
+        isVerified: modalVerified,
+        commentText: modalText,
+        handle: modalHandle,
+        timestamp: modalTimestamp,
+        likeCount: modalLikes,
+        creatorLiked: modalCreatorLiked,
+        isPinned: modalPinned,
+      } : {
+        id,
+        username: modalUsername,
+        handle: modalHandle,
+        avatarUrl: modalAvatar,
+        isVerified: modalVerified,
+        commentText: modalText,
+        timestamp: modalTimestamp,
+        likeCount: modalLikes,
+        creatorLiked: modalCreatorLiked,
+        isPinned: modalPinned,
+      };
+      onStateChange({ [listKey]: [...items, newItem] });
+    } else if (editingItemId) {
+      const updated = items.map((item: any) => {
+        if (item.id === editingItemId) {
+          return isLiveMode ? {
+            ...item,
+            username: modalUsername,
+            avatarUrl: modalAvatar,
+            isVerified: modalVerified,
+            commentText: modalText,
+            handle: modalHandle,
+            timestamp: modalTimestamp,
+            likeCount: modalLikes,
+            creatorLiked: modalCreatorLiked,
+            isPinned: modalPinned,
+          } : {
+            ...item,
+            username: modalUsername,
+            handle: modalHandle,
+            avatarUrl: modalAvatar,
+            isVerified: modalVerified,
+            commentText: modalText,
+            timestamp: modalTimestamp,
+            likeCount: modalLikes,
+            creatorLiked: modalCreatorLiked,
+            isPinned: modalPinned,
+          };
+        }
+        return item;
+      });
+      onStateChange({ [listKey]: updated });
+    }
+
+    // Reset states
+    setIsAddingNew(false);
+    setEditingItemId(null);
+  };
+
+  const handleDeleteModal = () => {
+    if (!editingItemId) return;
+    const isLiveMode = state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live');
+    const listKey = isLiveMode ? 'additionalComments' : 'nestedReplies';
+    const items = state[listKey] || [];
+    const filtered = items.filter((item: any) => item.id !== editingItemId);
+    onStateChange({ [listKey]: filtered });
+    setIsAddingNew(false);
+    setEditingItemId(null);
+  };
+
+  const handleRandomizeProfile = () => {
+    const isMale = Math.random() > 0.5;
+    const array = isMale ? maleUsernames : femaleUsernames;
+    const name = array[Math.floor(Math.random() * array.length)];
+    const handle = `@${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(Math.random() * 100)}`;
+    setModalUsername(name);
+    setModalHandle(handle);
+    setModalAvatar(getRandomAvatarUrl(isMale ? 'male' : 'female'));
+  };
+
+  const getPreviewComponent = () => {
+    const props = {
+      state,
+      onReplyClick: handleReplyClick,
+      onEditReply: handleEditReply
+    };
+
+    switch (state.platform) {
+      case 'tiktok': return <TikTokPreview {...props} />;
+      case 'instagram': return state.instagramTemplate === 'live' ? <IGLivePreview {...props} /> : <InstagramPreview {...props} />;
+      case 'youtube': return <YouTubePreview {...props} />;
+      case 'twitter': return <TwitterPreview {...props} />;
+      case 'kick_live': return <KickLivePreview {...props} />;
+      default: return null;
+    }
+  };
+
+  const getFontFamilyStyle = () => {
+    switch (state.fontFamily) {
+      case 'roboto': return { fontFamily: '"Roboto", sans-serif' };
+      case 'inter': return { fontFamily: '"Inter", sans-serif' };
+      case 'space-grotesk': return { fontFamily: '"Space Grotesk", sans-serif' };
+      case 'playfair-display': return { fontFamily: '"Playfair Display", serif' };
+      case 'poppins': return { fontFamily: '"Poppins", sans-serif' };
+      case 'jetbrains-mono': return { fontFamily: '"JetBrains Mono", monospace' };
+      case 'san-francisco': return { fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "Segoe UI", Roboto, Helvetica, Arial, sans-serif' };
+      default: return {};
+    }
+  };
+
+  // Handle Mouse Wheel Zoom
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        setScale(s => Math.min(Math.max(0.25, s + delta), 3));
+      }
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
+    { id: 'tiktok', label: 'TikTok', icon: <TikTokColoredIcon className="w-4.5 h-4.5" /> },
+    { id: 'instagram', label: 'Instagram', icon: <InstagramColoredIcon className="w-5 h-5" /> },
+    { id: 'youtube', label: 'YouTube', icon: <YouTubeColoredIcon className="w-5 h-5" /> },
+    { id: 'twitter', label: 'Twitter / X', icon: <TwitterColoredIcon className="w-5 h-5" /> },
+    { id: 'kick_live', label: 'Kick Live', icon: <KickColoredIcon className="w-4 h-4 text-[10px]" /> },
+  ];
+
+  return (
+    <div className="flex flex-col h-full glass-panel rounded-lg shadow-xl overflow-hidden relative">
+      <Toolbar 
+        scale={scale} 
+        setScale={setScale} 
+        showGrid={showGrid} 
+        setShowGrid={setShowGrid} 
+        centerCanvas={centerCanvas} 
+        cardTheme={state.theme}
+        onCardThemeChange={(theme) => onStateChange({ theme })}
+      />
+
+      {/* Top Floating Controls */}
+      <div className="absolute top-4 inset-x-4 z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pointer-events-none">
+        {/* Floating Platform Dock */}
+        <div className="flex bg-[var(--panel-bg)]/85 backdrop-blur-md border border-[var(--panel-border)] rounded-xl p-1 shadow-lg items-center gap-1 pointer-events-auto shrink-0 max-w-full overflow-x-auto custom-scrollbar self-start">
+           {platforms.map((p) => {
+             const isActive = state.platform === p.id;
+             return (
+               <button
+                 key={p.id}
+                 onClick={() => onStateChange({ platform: p.id })}
+                 className={`relative flex items-center justify-center shrink-0 p-2 sm:p-2.5 rounded-lg transition-all duration-200 ${
+                   isActive 
+                     ? 'bg-[var(--root-bg)] shadow-sm text-[var(--root-fg)]' 
+                     : 'text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--button-hover)]/40'
+                 }`}
+                 title={`Switch to ${p.label}`}
+               >
+                 <span className={`w-4 h-4 sm:w-4.5 sm:h-4.5 flex items-center justify-center transition-transform ${isActive ? 'scale-110' : 'opacity-80'}`}>
+                   {p.icon}
+                 </span>
+               </button>
+             );
+           })}
+        </div>
+        
+        {/* Action Buttons: Randomize, Snapshot, and Export */}
+        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 pointer-events-auto shrink-0 self-start sm:self-auto max-w-full">
+          <button
+            onClick={onRandomize}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer select-none"
+            title="Randomize Content"
+          >
+            <Shuffle className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+            <span className="hidden sm:inline">Randomize</span>
+          </button>
+          <button
+            onClick={handleSnapshot}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer select-none"
+            title="Quick Snapshot for Side-by-Side Comparison"
+          >
+            <Image className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+            <span className="hidden sm:inline">Snapshot</span>
+          </button>
+          
+          <ExportCard 
+            onExport={handleExport} 
+            isExporting={isExporting} 
+            isPremium={isPremium}
+            exportCount={exportCount}
+            onUpgradeClick={onUpgradeClick}
+          />
+        </div>
+      </div>
+
+      {/* Canvas Container */}
+      <div 
+        ref={containerRef}
+        className={`flex-1 relative overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing transition-all duration-300 ${
+          bgStyle === 'solid' 
+            ? 'bg-[var(--root-bg)]' 
+            : bgStyle === 'gradient'
+              ? 'bg-gradient-to-br from-[#15171c] via-[#23262d] to-[#0c0e12]'
+              : ''
+        }`}
+        style={bgStyle === 'transparent' ? {
+          backgroundColor: '#ffffff',
+          backgroundImage: 'repeating-linear-gradient(45deg, #e5e5e5 25%, transparent 25%, transparent 75%, #e5e5e5 75%, #e5e5e5), repeating-linear-gradient(45deg, #e5e5e5 25%, #ffffff 25%, #ffffff 75%, #e5e5e5 75%, #e5e5e5)',
+          backgroundPosition: '0 0, 10px 10px',
+          backgroundSize: '20px 20px'
+        } : {}}
+      >
+        {/* Figma like checkerboard via CSS class or inline style */}
+        {bgStyle === 'checkerboard' && (
+          <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, var(--panel-border) 25%, transparent 25%, transparent 75%, var(--panel-border) 75%, var(--panel-border)), repeating-linear-gradient(45deg, var(--panel-border) 25%, var(--root-bg) 25%, var(--root-bg) 75%, var(--panel-border) 75%, var(--panel-border))',
+            backgroundPosition: '0 0, 10px 10px',
+            backgroundSize: '20px 20px'
+          }}></div>
+        )}
+
+        {showGrid && (
+          <div className="absolute inset-0 pointer-events-none opacity-10" style={{
+            backgroundImage: 'linear-gradient(to right, var(--root-fg) 1px, transparent 1px), linear-gradient(to bottom, var(--root-fg) 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}></div>
+        )}
+
+        <motion.div
+          drag
+          dragMomentum={false}
+          style={{ x, y, scale }}
+          className="relative z-10 flex justify-center items-center"
+        >
+          <div 
+            ref={previewRef} 
+            className={`flex justify-center transition-shadow preview-card-font ${state.hasDropShadow ? 'drop-shadow-[0_20px_40px_rgba(0,0,0,0.15)]' : ''}`}
+            style={getFontFamilyStyle()}
+          >
+             {getPreviewComponent()}
+          </div>
+        </motion.div>
+
+        {/* Beautiful Floating Inline Editor Modal for Nest Replies / Live Comments */}
+        {(isAddingNew || editingItemId) && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-md max-h-full flex flex-col bg-[var(--panel-bg)] border border-[var(--panel-border)] text-[var(--root-fg)] rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-2.5 sm:p-3.5 border-b border-[var(--panel-border)] bg-[var(--root-bg)]/40 shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent)]">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                  </div>
+                  <h3 className="font-semibold text-xs sm:text-sm">
+                    {isAddingNew ? 'Balasan Baru' : 'Edit Balasan'}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleRandomizeProfile}
+                    title="Acak Profil"
+                    className="ml-1 sm:ml-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-[var(--accent)]/10 text-[var(--accent)] rounded-md hover:bg-[var(--accent)]/20 transition-colors"
+                  >
+                    <Shuffle className="w-3 h-3" />
+                  </button>
+                </div>
+                <button 
+                  onClick={() => { setIsAddingNew(false); setEditingItemId(null); }}
+                  className="p-1 sm:p-1.5 hover:bg-[var(--button-hover)] rounded-md transition text-[var(--text-muted)] hover:text-[var(--root-fg)] cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-3 sm:p-4 flex flex-col gap-2.5 sm:gap-3 flex-1 overflow-y-auto custom-scrollbar">
+                {/* Profile row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Username</label>
+                    <input 
+                      type="text" 
+                      value={modalUsername} 
+                      onChange={(e) => setModalUsername(e.target.value)}
+                      placeholder="username"
+                      className="w-full text-xs py-1.5 px-2.5 rounded bg-[var(--root-bg)] border border-[var(--panel-border)] focus:border-[var(--accent)]/50 outline-none transition text-[var(--root-fg)]"
+                    />
+                  </div>
+                  {!(state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live')) && (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Handle / Tag</label>
+                      <input 
+                        type="text" 
+                        value={modalHandle} 
+                        onChange={(e) => setModalHandle(e.target.value)}
+                        placeholder="@handle"
+                        className="w-full text-xs py-1.5 px-2.5 rounded bg-[var(--root-bg)] border border-[var(--panel-border)] focus:border-[var(--accent)]/50 outline-none transition text-[var(--root-fg)]"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Avatar URL input */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Avatar URL</label>
+                  <div className="flex gap-2 items-center">
+                    {modalAvatar && (
+                      <img src={modalAvatar} alt="preview" className="w-7 h-7 rounded-full border border-[var(--panel-border)] object-cover bg-[var(--root-bg)] shrink-0" />
+                    )}
+                    <input 
+                      type="text" 
+                      value={modalAvatar} 
+                      onChange={(e) => setModalAvatar(e.target.value)}
+                      placeholder="https://..."
+                      className="w-full text-xs py-1.5 px-2.5 rounded bg-[var(--root-bg)] border border-[var(--panel-border)] focus:border-[var(--accent)]/50 outline-none transition text-[var(--root-fg)]"
+                    />
+                  </div>
+                </div>
+
+                {/* Comment Textarea with emoji selection and styling toolbar */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex justify-between items-center mb-0.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Isi Balasan</label>
+                    <div className="flex gap-0.5 bg-[var(--root-bg)] p-0.5 rounded border border-[var(--panel-border)]">
+                      {['👍', '❤️', '😂', '🔥', '😭'].map(emoji => (
+                        <button 
+                          key={emoji}
+                          type="button"
+                          onClick={() => setModalText(modalText + emoji)}
+                          className="text-xs hover:bg-[var(--button-hover)] w-5 h-5 rounded flex items-center justify-center transition cursor-pointer"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <textarea 
+                    ref={modalTextareaRef}
+                    value={modalText} 
+                    onChange={(e) => setModalText(e.target.value)}
+                    placeholder="Tulis balasan..."
+                    rows={2}
+                    className="w-full text-xs py-2 px-2.5 rounded bg-[var(--root-bg)] border border-[var(--panel-border)] focus:border-[var(--accent)]/50 outline-none transition text-[var(--root-fg)] resize-none"
+                    autoFocus
+                  />
+                  
+                  {/* Advanced Formatting Toolbar inside modal */}
+                  <div className="flex items-center justify-between bg-[var(--root-bg)] border border-[var(--panel-border)] rounded p-1 mt-1">
+                    <div className="flex gap-1">
+                      <button 
+                        title="Highlight" 
+                        type="button" 
+                        onMouseDown={(e) => { e.preventDefault(); applyModalFormat('highlight'); }} 
+                        className="w-6 h-6 rounded hover:bg-[var(--button-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-yellow-500 transition cursor-pointer"
+                      >
+                        <Highlighter className="w-3.5 h-3.5" />
+                      </button>
+                      <button 
+                        title="Blur" 
+                        type="button" 
+                        onMouseDown={(e) => { e.preventDefault(); applyModalFormat('blur'); }} 
+                        className="w-6 h-6 rounded hover:bg-[var(--button-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-blue-500 transition cursor-pointer"
+                      >
+                        <EyeOff className="w-3.5 h-3.5" />
+                      </button>
+                      <button 
+                        title="Cut" 
+                        type="button" 
+                        onMouseDown={(e) => { e.preventDefault(); applyModalFormat('cut'); }} 
+                        className="w-6 h-6 rounded hover:bg-[var(--button-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 transition cursor-pointer"
+                      >
+                        <Scissors className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="w-[1px] h-3 bg-[var(--panel-border)] mx-1" />
+                    <button 
+                      title="Reset Formatting" 
+                      type="button" 
+                      onClick={resetModalFormat} 
+                      className="w-6 h-6 rounded hover:bg-[var(--button-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--root-fg)] transition cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Optional items for normal comment templates only */}
+                {!(state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live')) && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Timestamp</label>
+                      <input 
+                        type="text" 
+                        value={modalTimestamp} 
+                        onChange={(e) => setModalTimestamp(e.target.value)}
+                        placeholder="1j lalu"
+                        className="w-full text-xs py-1.5 px-2.5 rounded bg-[var(--root-bg)] border border-[var(--panel-border)] focus:border-[var(--accent)]/50 outline-none transition text-[var(--root-fg)]"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Likes</label>
+                      <input 
+                        type="text" 
+                        value={modalLikes} 
+                        onChange={(e) => setModalLikes(e.target.value)}
+                        placeholder="2.4K"
+                        className="w-full text-xs py-1.5 px-2.5 rounded bg-[var(--root-bg)] border border-[var(--panel-border)] focus:border-[var(--accent)]/50 outline-none transition text-[var(--root-fg)]"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Switches / Checkboxes */}
+                <div className="flex flex-wrap gap-2.5 bg-[var(--root-bg)]/50 p-2.5 rounded border border-[var(--panel-border)]">
+                  <label className="flex items-center gap-1.5 cursor-pointer select-none text-[11px] text-[var(--root-fg)]/80 hover:text-[var(--root-fg)]">
+                    <input 
+                      type="checkbox" 
+                      checked={modalVerified} 
+                      onChange={(e) => setModalVerified(e.target.checked)}
+                      className="rounded border-[var(--panel-border)] bg-[var(--root-bg)] w-3.5 h-3.5 text-[var(--accent)] focus:ring-0 cursor-pointer"
+                    />
+                    <span>Verified</span>
+                  </label>
+
+                  {!(state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live')) && (
+                    <label className="flex items-center gap-1.5 cursor-pointer select-none text-[11px] text-[var(--root-fg)]/80 hover:text-[var(--root-fg)]">
+                      <input 
+                        type="checkbox" 
+                        checked={modalCreatorLiked} 
+                        onChange={(e) => setModalCreatorLiked(e.target.checked)}
+                        className="rounded border-[var(--panel-border)] bg-[var(--root-bg)] w-3.5 h-3.5 text-[var(--accent)] focus:ring-0 cursor-pointer"
+                      />
+                      <span>Liked</span>
+                    </label>
+                  )}
+
+                  <label className="flex items-center gap-1.5 cursor-pointer select-none text-[11px] text-[var(--root-fg)]/80 hover:text-[var(--root-fg)]">
+                    <input 
+                      type="checkbox" 
+                      checked={modalPinned} 
+                      onChange={(e) => setModalPinned(e.target.checked)}
+                      className="rounded border-[var(--panel-border)] bg-[var(--root-bg)] w-3.5 h-3.5 text-[var(--accent)] focus:ring-0 cursor-pointer"
+                    />
+                    <span>Pinned</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between p-3 border-t border-[var(--panel-border)] bg-[var(--root-bg)]/40 gap-2 shrink-0">
+                <div>
+                  {!isAddingNew && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteModal}
+                      className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-400 py-2 px-3 rounded-lg hover:bg-red-500/10 cursor-pointer transition"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Hapus
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setIsAddingNew(false); setEditingItemId(null); }}
+                    className="text-xs font-semibold py-2 px-4 rounded-lg hover:bg-[var(--button-hover)] text-[var(--text-muted)] hover:text-[var(--root-fg)] cursor-pointer transition border border-[var(--panel-border)]"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveModal}
+                    className="flex items-center gap-1.5 text-xs font-bold py-2 px-5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--root-bg)] cursor-pointer transition shadow-lg"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    Simpan
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </div>
+
+      {/* Canvas Status Bar */}
+      <div className="h-8 border-t border-[var(--panel-border)] bg-[var(--panel-bg)] flex items-center px-4 justify-between text-[10px] text-[var(--text-muted)] font-mono shrink-0 select-none relative z-30">
+        <div className="flex gap-4 items-center">
+          <span className="text-[var(--accent)] font-bold">{'PROGRAM MONITOR'}</span>
+          <span className="opacity-30">|</span>
+          <span>{Math.round(scale * 100)}%</span>
+          <span className="opacity-30">|</span>
+          <button 
+            onClick={() => {
+              const styles: ('checkerboard' | 'solid' | 'transparent' | 'gradient')[] = ['gradient', 'checkerboard', 'solid', 'transparent'];
+              const nextIndex = (styles.indexOf(bgStyle) + 1) % styles.length;
+              setBgStyle(styles[nextIndex]);
+            }}
+            className="hover:text-[var(--root-fg)] font-bold transition-colors cursor-pointer flex items-center gap-1.5 group"
+            title="Cycle background style"
+          >
+            <span>BACKGROUND:</span>
+            <span className="bg-slate-200 dark:bg-slate-800 text-[var(--root-fg)] px-1.5 py-0.5 rounded text-[9px] font-bold group-hover:bg-[var(--accent)] group-hover:text-[var(--root-bg)] transition-all uppercase tracking-wide">
+              {bgStyle}
+            </span>
+          </button>
+          <span className="opacity-30">|</span>
+          <span>Auto Saved</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          <span>Ready</span>
+        </div>
+      </div>
+    </div>
+  );
+}

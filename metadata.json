@@ -1,0 +1,6 @@
+{
+  "name": "SocialCanvas",
+  "description": "Generator mock-up screenshot komentar media sosial yang terlihat asli (TikTok, Instagram, YouTube, Twitter) dengan ekspor PNG resolusi tinggi secara gratis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

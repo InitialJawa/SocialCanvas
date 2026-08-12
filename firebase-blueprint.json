@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "User profiles and isolated workspace storage",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "isGuest": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid"]
+    },
+    "drafts": {
+      "title": "Drafts",
+      "description": "User draft items",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "platform": { "type": "string" },
+        "state": { "type": "object" },
+        "createdAt": { "type": "string" },
+        "isCloudSynced": { "type": "boolean" }
+      },
+      "required": ["id", "platform", "state", "createdAt"]
+    },
+    "history": {
+      "title": "History",
+      "description": "User history timeline snapshots",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "platform": { "type": "string" },
+        "state": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "platform", "state", "createdAt"]
+    },
+    "snapshots": {
+      "title": "Snapshots",
+      "description": "User canvas exported snapshots gallery",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "url": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "url", "timestamp"]
+    }
+  }
+}
