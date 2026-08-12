@@ -134,7 +134,7 @@ export function UpgradeModal({ isOpen, onClose, onUpgradeSuccess, isPremium, onD
                     Berlangganan Sekarang — Rp 49K
                   </Button>
                 )}
-                <p className="text-[10px] text-center text-[var(--text-muted)]">
+                <p className="text-xs text-center text-[var(--text-muted)]">
                   Jalur pembayaran aman & terenskripsi. Batalkan langganan kapan pun di menu setelan.
                 </p>
               </div>
@@ -163,7 +163,7 @@ export function UpgradeModal({ isOpen, onClose, onUpgradeSuccess, isPremium, onD
 
                 <div className="flex flex-col gap-3">
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Nama Pemegang Kartu</label>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Nama Pemegang Kartu</label>
                     <input
                       type="text"
                       placeholder="Masukkan nama lengkap"
@@ -173,7 +173,7 @@ export function UpgradeModal({ isOpen, onClose, onUpgradeSuccess, isPremium, onD
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Nomor Kartu (Mock)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Nomor Kartu (Mock)</label>
                     <input
                       type="text"
                       placeholder="XXXX XXXX XXXX XXXX"
@@ -184,7 +184,7 @@ export function UpgradeModal({ isOpen, onClose, onUpgradeSuccess, isPremium, onD
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Expired</label>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">Expired</label>
                       <input
                         type="text"
                         placeholder="MM/YY"
@@ -194,7 +194,7 @@ export function UpgradeModal({ isOpen, onClose, onUpgradeSuccess, isPremium, onD
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">CVC</label>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">CVC</label>
                       <input
                         type="text"
                         placeholder="123"

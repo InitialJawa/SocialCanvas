@@ -20,80 +20,78 @@ interface Props {
   onUpgradeClick: () => void;
 }
 
-export function Header({ 
-  theme, 
-  onThemeChange, 
-  onGoHome, 
-  onLoginClick, 
+export function Header({
+  theme,
+  onThemeChange,
+  onGoHome,
+  onLoginClick,
   currentUser,
   isPremium,
   onUpgradeClick
 }: Props) {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
+
+  const btnBase = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--button-hover)] transition-colors cursor-pointer";
 
   return (
     <header className="h-14 px-3 lg:px-4 flex items-center justify-between bg-[var(--panel-bg-translucent)] backdrop-blur-xl border-b border-[var(--panel-border)] shrink-0 sticky top-0 z-50">
       <div className="flex items-center gap-3 min-w-0">
-        <div 
+        <div
           onClick={onGoHome}
-          className="flex items-center gap-2 cursor-pointer group select-none hover:opacity-90 active:scale-95 transition-all shrink-0"
-          title={t('header.goHome')}
+          className="flex items-center gap-2.5 cursor-pointer group select-none hover:opacity-90 active:scale-95 transition-all shrink-0"
+          title="Beranda"
         >
-          <CapybaraLogo className="w-7 h-7 drop-shadow-sm shrink-0 hover:rotate-6 transition-transform duration-300" />
-          <span className="mono-label text-[11px] tracking-widest hidden sm:inline">{'SOCIALCANVAS'}</span>
+          <CapybaraLogo className="w-7 h-7 shrink-0" />
+          <span className="text-sm font-bold tracking-tight hidden sm:inline">SocialCanvas</span>
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2">
-        {/* Home text button */}
+      <div className="flex items-center gap-1 sm:gap-1.5">
         <button
           onClick={onGoHome}
-          className="hidden sm:flex items-center gap-1 mono-label text-[10px] text-[var(--text-muted)] hover:text-[var(--root-fg)] transition-colors px-2.5 py-1.5 rounded-md hover:bg-[var(--button-hover)] cursor-pointer"
+          className={`${btnBase} hidden sm:flex`}
         >
-          <Home className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">{t('header.home')}</span>
+          <Home className="w-4 h-4" />
         </button>
 
-        {/* Language Switcher */}
         <button
           onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[var(--root-bg)] border border-[var(--panel-border)] mono-label text-[10px] hover:bg-[var(--button-hover)] text-[var(--root-fg)] transition-all cursor-pointer"
+          className={btnBase}
           title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
         >
-          <Globe className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-          <span>{language === 'id' ? 'ID' : 'EN'}</span>
+          <Globe className="w-4 h-4 text-[var(--text-muted)]" />
+          <span className="font-semibold">{language === 'id' ? 'ID' : 'EN'}</span>
         </button>
 
-        {/* User Account Button */}
         {currentUser ? (
           <button
             onClick={onLoginClick}
-            className="flex items-center gap-2 px-2 py-1 rounded-md bg-[var(--root-bg)] border border-[var(--panel-border)] mono-label text-[10px] hover:bg-[var(--button-hover)] text-[var(--root-fg)] transition-all cursor-pointer"
-            title={`${currentUser.name} (${isPremium ? t('header.proAccount') : t('header.freeAccount')})`}
+            className={`${btnBase} gap-2`}
+            title={`${currentUser.name} (${isPremium ? 'Pro' : 'Free'})`}
           >
             <div className={`p-[1.5px] rounded-full flex items-center justify-center shrink-0 ${
-              isPremium 
-                ? 'bg-[var(--accent)] shadow-[0_0_8px_rgba(255,177,61,0.4)]' 
+              isPremium
+                ? 'bg-[var(--accent)] shadow-[0_0_8px_rgba(255,177,61,0.4)]'
                 : 'bg-gray-400/50 dark:bg-gray-600'
             }`}>
               <img src={currentUser.avatar} alt="User Avatar" className="w-5 h-5 rounded-full object-cover border border-[var(--root-bg)]" referrerPolicy="no-referrer" />
             </div>
-            <span className="max-w-[70px] sm:max-w-[100px] truncate hidden sm:inline">{currentUser.name}</span>
+            <span className="max-w-[80px] sm:max-w-[110px] truncate hidden sm:inline font-semibold">{currentUser.name}</span>
           </button>
         ) : (
           <button
             onClick={onLoginClick}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-[var(--root-bg)] border border-[var(--panel-border)] mono-label text-[10px] hover:bg-[var(--button-hover)] text-[var(--root-fg)] transition-all cursor-pointer"
+            className={btnBase}
           >
-            <User className="w-3.5 h-3.5" />
-            <span>{t('header.login')}</span>
+            <User className="w-4 h-4" />
+            <span className="hidden sm:inline">Masuk</span>
           </button>
         )}
 
         <button
           onClick={onThemeChange}
-          className="flex items-center justify-center w-8 h-8 rounded-md bg-[var(--root-bg)] text-[var(--root-fg)] hover:bg-[var(--button-hover)] transition-colors cursor-pointer"
-          title={t('header.switchTheme')}
+          className="flex items-center justify-center w-8 h-8 rounded-lg text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--button-hover)] transition-colors cursor-pointer"
+          title="Ganti tema"
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>

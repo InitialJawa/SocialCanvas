@@ -213,30 +213,32 @@ export function Sidebar({
       <div className={`md:flex-1 ${activeTab === 'gallery' ? 'md:overflow-hidden min-h-0' : 'md:overflow-y-auto custom-scrollbar'} flex flex-col`}>
         {/* TAB NAVIGATION */}
         <div className="flex border-b border-[var(--panel-border)] bg-[var(--panel-bg-translucent)] sticky top-0 z-20">
-          <button 
-            onClick={() => setActiveTab('comment')}
-            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'comment' ? 'border-[var(--accent)] text-[var(--root-fg)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--panel-border)]'}`}
-          >
-            {t('sidebar.tab.comment')}
-          </button>
-          <button 
-            onClick={() => setActiveTab('engagement')}
-            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'engagement' ? 'border-[var(--accent)] text-[var(--root-fg)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--panel-border)]'}`}
-          >
-            {t('sidebar.tab.engagement')}
-          </button>
-          <button 
-            onClick={() => setActiveTab('advanced')}
-            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'advanced' ? 'border-[var(--accent)] text-[var(--root-fg)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--panel-border)]'}`}
-          >
-            {t('sidebar.tab.advanced')}
-          </button>
-          <button 
-            onClick={() => setActiveTab('gallery')}
-            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'gallery' ? 'border-[var(--accent)] text-[var(--root-fg)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--panel-border)]'}`}
-          >
-            {t('sidebar.tab.gallery')}
-          </button>
+          <div className="flex w-full m-2 bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-xl p-1 gap-1">
+            <button
+              onClick={() => setActiveTab('comment')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === 'comment' ? 'bg-[var(--panel-bg)] text-[var(--root-fg)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--root-fg)]'}`}
+            >
+              {t('sidebar.tab.comment')}
+            </button>
+            <button
+              onClick={() => setActiveTab('engagement')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === 'engagement' ? 'bg-[var(--panel-bg)] text-[var(--root-fg)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--root-fg)]'}`}
+            >
+              {t('sidebar.tab.engagement')}
+            </button>
+            <button
+              onClick={() => setActiveTab('advanced')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === 'advanced' ? 'bg-[var(--panel-bg)] text-[var(--root-fg)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--root-fg)]'}`}
+            >
+              {t('sidebar.tab.advanced')}
+            </button>
+            <button
+              onClick={() => setActiveTab('gallery')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${activeTab === 'gallery' ? 'bg-[var(--panel-bg)] text-[var(--root-fg)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--root-fg)]'}`}
+            >
+              {t('sidebar.tab.gallery')}
+            </button>
+          </div>
         </div>
 
         {/* TAB CONTENTS */}
@@ -249,7 +251,7 @@ export function Sidebar({
                 <div className="p-4.5 border-b border-[var(--panel-border)] flex flex-col gap-3">
                   {state.platform === 'tiktok' && (
                     <div>
-                      <Label className="mono-label text-[10px] text-[var(--root-fg)] mb-2 block">{t('sidebar.tiktokTemplate')}</Label>
+                      <Label className="text-[var(--root-fg)] mb-2 block">{t('sidebar.tiktokTemplate')}</Label>
                       <div className="flex bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-lg p-1">
                         <button
                           onClick={() => onChange({ tiktokTemplate: 'video' })}
@@ -269,7 +271,7 @@ export function Sidebar({
                   
                   {state.platform === 'instagram' && (
                     <div>
-                      <Label className="mono-label text-[10px] text-[var(--root-fg)] mb-2 block">{t('sidebar.instagramTemplate')}</Label>
+                      <Label className="text-[var(--root-fg)] mb-2 block">{t('sidebar.instagramTemplate')}</Label>
                       <div className="flex bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-lg p-1">
                         <button
                           onClick={() => onChange({ instagramTemplate: 'comment' })}
@@ -291,7 +293,7 @@ export function Sidebar({
 
               {/* AVATAR */}
               <div className="p-4.5 border-b border-[var(--panel-border)] flex flex-col gap-3">
-                <Label className="mono-label text-[10px] text-[var(--root-fg)]">{t('sidebar.avatar')}</Label>
+                <Label className="text-[var(--root-fg)]">{t('sidebar.avatar')}</Label>
                 <div className="flex items-center gap-4">
                   <div className="shrink-0 relative group">
                     {state.avatarUrl ? (
@@ -333,7 +335,7 @@ export function Sidebar({
               {/* USERNAME */}
               <div className="p-4.5 border-b border-[var(--panel-border)] flex flex-col gap-3">
                 <div>
-                  <Label className="mono-label text-[10px] text-[var(--root-fg)] mb-1.5">{t('sidebar.username')}</Label>
+                  <Label className="text-[var(--root-fg)] mb-1.5">{t('sidebar.username')}</Label>
                   <Input 
                     value={state.username} 
                     onChange={e => onChange({ username: e.target.value })}
@@ -344,7 +346,7 @@ export function Sidebar({
                 
                 {state.platform === 'twitter' && (
                   <div>
-                    <Label className="mono-label text-[10px] text-[var(--root-fg)] mb-1.5">{t('sidebar.handle')}</Label>
+                    <Label className="text-[var(--root-fg)] mb-1.5">{t('sidebar.handle')}</Label>
                     <Input 
                       value={state.handle} 
                       onChange={e => onChange({ handle: e.target.value })}
@@ -358,7 +360,7 @@ export function Sidebar({
               {/* COMMENT TEXT */}
               <div className="p-4.5 border-b border-[var(--panel-border)] flex flex-col gap-2.5">
                 <div className="flex justify-between items-end mb-1">
-                  <Label className="mb-0 mono-label text-[10px] text-[var(--root-fg)]">{t('sidebar.commentText')}</Label>
+                  <Label className="mb-0 text-[var(--root-fg)]">{t('sidebar.commentText')}</Label>
                   <div className="flex gap-1 bg-[var(--root-bg)] p-0.5 rounded border border-[var(--panel-border)]">
                     {['👍', '❤️', '😂', '🔥', '😭'].map(emoji => (
                       <button 
@@ -406,7 +408,7 @@ export function Sidebar({
             <div className="flex flex-col p-4.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">{t('sidebar.likes')}</Label>
+                  <Label>{t('sidebar.likes')}</Label>
                   <Input 
                     value={state.likeCount} 
                     onChange={e => onChange({ likeCount: e.target.value })}
@@ -416,7 +418,7 @@ export function Sidebar({
                 </div>
 
                 <div>
-                  <Label className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">{t('sidebar.time')}</Label>
+                  <Label>{t('sidebar.time')}</Label>
                   <Input 
                     value={state.timestamp} 
                     onChange={e => onChange({ timestamp: e.target.value })}
@@ -428,7 +430,7 @@ export function Sidebar({
                 {state.platform === 'twitter' && (
                   <>
                     <div>
-                      <Label className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">{t('sidebar.retweets')}</Label>
+                      <Label>{t('sidebar.retweets')}</Label>
                       <Input 
                         value={state.retweetCount} 
                         onChange={e => onChange({ retweetCount: e.target.value })}
@@ -437,7 +439,7 @@ export function Sidebar({
                       />
                     </div>
                     <div>
-                      <Label className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">{t('sidebar.views')}</Label>
+                      <Label>{t('sidebar.views')}</Label>
                       <Input 
                         value={state.viewCount} 
                         onChange={e => onChange({ viewCount: e.target.value })}
@@ -450,7 +452,7 @@ export function Sidebar({
 
                 {state.platform === 'youtube' && (
                   <div>
-                    <Label className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">{t('sidebar.replies')}</Label>
+                    <Label>{t('sidebar.replies')}</Label>
                     <Input 
                       value={state.replyCount} 
                       onChange={e => onChange({ replyCount: e.target.value })}
@@ -462,7 +464,7 @@ export function Sidebar({
 
                 {/* Checkboxes */}
                 <div className="col-span-2 flex flex-col gap-2 mt-2 pt-4 border-t border-[var(--panel-border)]">
-                  <Label className="text-[11px] font-semibold text-[var(--text-muted)] uppercase mb-2">{t('sidebar.badges')}</Label>
+                  <Label>{t('sidebar.badges')}</Label>
                   <label className="flex items-center gap-2 cursor-pointer group select-none bg-[var(--panel-bg-translucent)] p-2 rounded-lg border border-[var(--panel-border)] hover:bg-[var(--panel-border)] transition-colors">
                     <input 
                       type="checkbox" 
@@ -524,7 +526,7 @@ export function Sidebar({
               {/* NESTED REPLIES */}
               <div className="p-4.5 border-b border-[var(--panel-border)]">
                 <div className="flex items-center justify-between mb-3.5">
-                  <Label className="mono-label text-[10px] text-[var(--root-fg)] mb-0 flex items-center gap-1.5">
+                  <Label className="text-[var(--root-fg)] mb-0 flex items-center gap-1.5">
                     <MessageCircle className="w-3.5 h-3.5 text-[var(--accent)]" />
                     {state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live') ? t('sidebar.liveComments') : t('sidebar.nestedReplies')}
                   </Label>
@@ -534,7 +536,7 @@ export function Sidebar({
 
               {/* APPEARANCE */}
               <div className="p-4.5 border-b border-[var(--panel-border)]">
-                <Label className="mono-label text-[10px] text-[var(--root-fg)] mb-3.5 flex items-center gap-1.5">
+                <Label className="text-[var(--root-fg)] mb-3.5 flex items-center gap-1.5">
                   <Palette className="w-3.5 h-3.5 text-[var(--accent)]" />
                   {t('sidebar.appearanceWatermark')}
                 </Label>
@@ -543,7 +545,7 @@ export function Sidebar({
 
               {/* ANIMATION FUTURE */}
               <div className="p-4.5 border-b border-[var(--panel-border)]">
-                <Label className="mono-label text-[10px] text-[var(--text-muted)] mb-1.5">{t('sidebar.animation')}</Label>
+                <Label className="text-[var(--text-muted)] mb-1.5">{t('sidebar.animation')}</Label>
                 <div className="text-[10px] text-[var(--text-muted)] bg-[var(--root-bg)] border border-dashed border-[var(--panel-border)] rounded-xl p-3 leading-relaxed">
                   {t('sidebar.animation.desc')}
                 </div>
@@ -551,7 +553,7 @@ export function Sidebar({
 
               {/* CUSTOM CSS FUTURE */}
               <div className="p-4.5">
-                <Label className="mono-label text-[10px] text-[var(--text-muted)] mb-1.5">{t('sidebar.customCss')}</Label>
+                <Label className="text-[var(--text-muted)] mb-1.5">{t('sidebar.customCss')}</Label>
                 <div className="text-[10px] text-[var(--text-muted)] bg-[var(--root-bg)] border border-dashed border-[var(--panel-border)] rounded-xl p-3 leading-relaxed">
                   {t('sidebar.customCss.desc')}
                 </div>
@@ -564,7 +566,7 @@ export function Sidebar({
             <div className="flex flex-col flex-1 min-h-0 animate-in fade-in slide-in-from-bottom-2 duration-200">
               {/* Compact Toolbar for Undo / Redo */}
               <div className="flex items-center justify-between px-4 py-2 bg-[var(--root-bg)]/40 border-b border-[var(--panel-border)] shrink-0 select-none">
-                <span className="mono-label text-[10px] text-[var(--text-muted)]">
+                <span className="text-[var(--text-muted)]">
                   {language === 'id' ? 'Riwayat Editor' : 'Editor History'}
                 </span>
                 <div className="flex items-center gap-1.5">
@@ -1129,7 +1131,7 @@ export function Sidebar({
 
                                     <div className="flex justify-between items-center mt-1.5 pt-1 border-t border-[var(--panel-border)]/50">
                                       {/* Platform details */}
-                                      <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold text-[var(--accent)]">
+                                      <span className="text-xs font-semibold text-[var(--accent)]">
                                         {hist.platform}
                                       </span>
 
@@ -1198,7 +1200,7 @@ export function Sidebar({
 
                                   <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-[var(--panel-border)]/50">
                                     {/* Platform details */}
-                                    <span className="text-[10px] text-[var(--text-muted)] uppercase font-bold text-[var(--accent)]">
+                                    <span className="text-xs font-semibold text-[var(--accent)]">
                                       {hist.platform}
                                     </span>
 

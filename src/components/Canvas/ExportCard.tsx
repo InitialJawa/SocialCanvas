@@ -52,7 +52,7 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="mb-1.5 text-[10px]">Scale</Label>
+                <Label className="mb-1.5">Scale</Label>
                 <Select value={scale} onChange={(e) => setScale(Number(e.target.value))} className="py-1.5 text-xs">
                   <option value={1}>1x</option>
                   <option value={2}>2x (Retina)</option>
@@ -60,7 +60,7 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
                 </Select>
               </div>
               <div>
-                <Label className="mb-1.5 text-[10px]">Format</Label>
+                <Label className="mb-1.5">Format</Label>
                 <Select value={format} onChange={(e) => setFormat(e.target.value as any)} className="py-1.5 text-xs">
                   <option value="png">PNG</option>
                   <option value="jpg">JPG</option>
@@ -89,7 +89,7 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
 
             {/* Daily Export Limit Progress Info */}
             <div className="pt-3 border-t border-[var(--panel-border)]/60 mt-1 select-none">
-              <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-muted)] mb-1.5">
+              <div className="flex justify-between items-center text-xs font-semibold text-[var(--text-muted)] mb-1.5">
                 <span>BATAS EKSPOR HARIAN</span>
                 <span>{isPremium ? 'PRO (Tanpa Batas)' : `${exportCount} / 30`}</span>
               </div>
@@ -106,13 +106,13 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
                       setIsOpen(false);
                       onUpgradeClick();
                     }}
-                    className="text-[10px] text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold transition-colors w-full text-center block hover:underline cursor-pointer"
+                    className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold transition-colors w-full text-center block hover:underline cursor-pointer"
                   >
                     Dapatkan Ekspor Tanpa Batas (PRO) →
                   </button>
                 </div>
               ) : (
-                <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1 justify-center py-0.5">
+                <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 justify-center py-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Keanggotaan PRO Anda Aktif
                 </div>

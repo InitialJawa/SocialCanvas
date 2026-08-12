@@ -576,13 +576,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--root-bg)] text-[var(--root-fg)] font-sans selection:bg-[var(--accent)]/20 flex flex-col md:h-screen md:overflow-hidden relative transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--root-bg)] text-[var(--root-fg)] font-sans flex flex-col md:h-screen md:overflow-hidden relative transition-colors duration-300">
       
-      {/* Background Ambient Glows */}
-      <div className="absolute top-[-10%] left-[-5%] w-[55%] h-[55%] rounded-full bg-glow-blob-1 pointer-events-none z-0"></div>
-      <div className="absolute bottom-[-10%] right-[-5%] w-[55%] h-[55%] rounded-full bg-glow-blob-2 pointer-events-none z-0"></div>
-
-      {/* Modern responsive header containing platform, home navigation, and profile details */}
+      {/* Modern header containing platform, home navigation, and profile details */}
       <Header 
         theme={appTheme}
         onThemeChange={() => setAppTheme(appTheme === 'dark' ? 'light' : 'dark')}
@@ -668,15 +664,13 @@ export default function App() {
 
         {/* Footer */}
         <footer className="h-10 flex items-center justify-between shrink-0 px-6 w-full mt-auto text-[11px] text-[var(--text-muted)] border-t border-[var(--sidebar-border)] bg-[var(--panel-bg-translucent)] backdrop-blur-md">
-          <p className="font-semibold tracking-wide hidden sm:block opacity-80">
+          <p className="font-medium tracking-wide hidden sm:block opacity-70">
             {language === 'id' 
               ? 'Hanya untuk keperluan konten kreatif & edukasi. Jangan digunakan untuk menyebarkan misinformasi.' 
               : 'For creative & educational content purposes only. Do not use to spread misinformation.'}
           </p>
-          <div className="flex items-center gap-4 text-center sm:text-right w-full sm:w-auto justify-center font-bold">
-            <span className="text-[var(--accent)] tracking-tight">Built for Indonesia UGC</span>
-            <span className="opacity-40">•</span>
-            <span>Premium Output Enabled</span>
+          <div className="flex items-center gap-4 text-center sm:text-right w-full sm:w-auto justify-center font-semibold">
+            <span className="text-[var(--accent)]">Built for Indonesia UGC</span>
           </div>
         </footer>
       </div>

@@ -219,7 +219,7 @@ export function SectionComment({ state, onChange }: Props) {
               <span className="text-sm">{preset.icon}</span>
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-[var(--root-fg)]">{preset.label}</span>
-                <span className="text-[10px] text-[var(--text-muted)] truncate max-w-[90px]">{preset.category}</span>
+                <span className="text-xs text-[var(--text-muted)] truncate max-w-[90px]">{preset.category}</span>
               </div>
             </button>
           ))}

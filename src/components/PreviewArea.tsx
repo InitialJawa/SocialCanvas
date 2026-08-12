@@ -561,7 +561,7 @@ export function PreviewArea({
                 {/* Profile row */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Username</label>
+                    <label className="text-xs font-semibold text-[var(--text-muted)]">Username</label>
                     <input 
                       type="text" 
                       value={modalUsername} 
@@ -572,7 +572,7 @@ export function PreviewArea({
                   </div>
                   {!(state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live')) && (
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Handle / Tag</label>
+                      <label className="text-xs font-semibold text-[var(--text-muted)]">Handle / Tag</label>
                       <input 
                         type="text" 
                         value={modalHandle} 
@@ -586,7 +586,7 @@ export function PreviewArea({
 
                 {/* Avatar URL input */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Avatar URL</label>
+                  <label className="text-xs font-semibold text-[var(--text-muted)]">Avatar URL</label>
                   <div className="flex gap-2 items-center">
                     {modalAvatar && (
                       <img src={modalAvatar} alt="preview" className="w-7 h-7 rounded-full border border-[var(--panel-border)] object-cover bg-[var(--root-bg)] shrink-0" />
@@ -604,7 +604,7 @@ export function PreviewArea({
                 {/* Comment Textarea with emoji selection and styling toolbar */}
                 <div className="flex flex-col gap-1">
                   <div className="flex justify-between items-center mb-0.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Isi Balasan</label>
+                    <label className="text-xs font-semibold text-[var(--text-muted)]">Isi Balasan</label>
                     <div className="flex gap-0.5 bg-[var(--root-bg)] p-0.5 rounded border border-[var(--panel-border)]">
                       {['👍', '❤️', '😂', '🔥', '😭'].map(emoji => (
                         <button 
@@ -672,7 +672,7 @@ export function PreviewArea({
                 {!(state.platform === 'kick_live' || (state.platform === 'instagram' && state.instagramTemplate === 'live')) && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Timestamp</label>
+                      <label className="text-xs font-semibold text-[var(--text-muted)]">Timestamp</label>
                       <input 
                         type="text" 
                         value={modalTimestamp} 
@@ -682,7 +682,7 @@ export function PreviewArea({
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Likes</label>
+                      <label className="text-xs font-semibold text-[var(--text-muted)]">Likes</label>
                       <input 
                         type="text" 
                         value={modalLikes} 
@@ -768,10 +768,8 @@ export function PreviewArea({
       </div>
 
       {/* Canvas Status Bar */}
-      <div className="h-8 border-t border-[var(--panel-border)] bg-[var(--panel-bg)] flex items-center px-4 justify-between text-[10px] text-[var(--text-muted)] font-mono shrink-0 select-none relative z-30">
+      <div className="h-8 border-t border-[var(--panel-border)] bg-[var(--panel-bg)] flex items-center px-4 justify-between text-[11px] text-[var(--text-muted)] shrink-0 select-none relative z-30">
         <div className="flex gap-4 items-center">
-          <span className="text-[var(--accent)] font-bold">{'PROGRAM MONITOR'}</span>
-          <span className="opacity-30">|</span>
           <span>{Math.round(scale * 100)}%</span>
           <span className="opacity-30">|</span>
           <button 
@@ -780,11 +778,11 @@ export function PreviewArea({
               const nextIndex = (styles.indexOf(bgStyle) + 1) % styles.length;
               setBgStyle(styles[nextIndex]);
             }}
-            className="hover:text-[var(--root-fg)] font-bold transition-colors cursor-pointer flex items-center gap-1.5 group"
+            className="hover:text-[var(--root-fg)] transition-colors cursor-pointer flex items-center gap-1.5 group"
             title="Cycle background style"
           >
-            <span>BACKGROUND:</span>
-            <span className="bg-slate-200 dark:bg-slate-800 text-[var(--root-fg)] px-1.5 py-0.5 rounded text-[9px] font-bold group-hover:bg-[var(--accent)] group-hover:text-[var(--root-bg)] transition-all uppercase tracking-wide">
+            <span>Background</span>
+            <span className="bg-[var(--button-hover)] text-[var(--root-fg)] px-1.5 py-0.5 rounded text-[11px] font-semibold group-hover:text-[var(--accent)] transition-all">
               {bgStyle}
             </span>
           </button>

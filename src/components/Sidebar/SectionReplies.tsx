@@ -105,7 +105,7 @@ export function SectionReplies({ state, onChange, onEditReply, onAddReply }: Pro
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-[var(--text-muted)] truncate mt-0.5">
+                    <span className="text-xs text-[var(--text-muted)] truncate mt-0.5">
                       {item.commentText || (language === 'id' ? '(Kosong)' : '(Empty)')}
                     </span>
                   </div>

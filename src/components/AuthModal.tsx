@@ -201,7 +201,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
               <div>
                 <h3 className="text-lg font-bold">{currentUser.name}</h3>
                 <p className="text-xs text-[var(--text-muted)]">{currentUser.email}</p>
-                <div className="mt-2.5 inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/10 uppercase tracking-wider">
+                <div className="mt-2.5 inline-flex text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/10">
                   {currentUser.isGuest ? t('auth.guestAccount') : t('auth.registeredAccount')}
                 </div>
               </div>
@@ -226,7 +226,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
             <div className="flex flex-col gap-5">
               {/* Header */}
               <div className="text-center">
-                <div className="inline-flex items-center gap-1.5 bg-[var(--accent)]/15 text-[var(--accent)] text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[var(--accent)]/10 mb-2 uppercase tracking-wider">
+                <div className="inline-flex items-center gap-1.5 bg-[var(--accent)]/15 text-[var(--accent)] text-xs font-semibold px-2.5 py-0.5 rounded-full border border-[var(--accent)]/10 mb-2">
                   <User className="w-3 h-3" /> Akun SocialCanvas
                 </div>
                 <h3 className="text-xl font-extrabold tracking-tight">{t('auth.loginOrRegister')}</h3>
@@ -236,7 +236,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
               </div>
               
               {errorMessage && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-bold flex gap-2 items-center">
+                <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-semibold flex gap-2 items-center">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -266,7 +266,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
                 </button>
                 <button
                   onClick={() => setActiveTab('forgot')}
-                  className={`flex-1 pb-2.5 text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+                  className={`flex-1 pb-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
                     activeTab === 'forgot' 
                       ? 'border-[var(--accent)] text-[var(--accent)]' 
                       : 'border-transparent text-[var(--text-muted)] hover:text-[var(--root-fg)]'
@@ -282,7 +282,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
                     {t('auth.forgotPasswordDesc')}
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">{t('auth.emailAddress')}</label>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">{t('auth.emailAddress')}</label>
                     <input
                       type="email"
                       required
@@ -305,7 +305,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
                 <form onSubmit={handleEmailAuth} className="flex flex-col gap-4">
                   {activeTab === 'register' && (
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">{t('auth.creatorName')}</label>
+                      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">{t('auth.creatorName')}</label>
                       <input
                         type="text"
                         required
@@ -317,7 +317,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
                     </div>
                   )}
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">{t('auth.emailAddress')}</label>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">{t('auth.emailAddress')}</label>
                     <input
                       type="email"
                       required
@@ -328,7 +328,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">{t('auth.password')}</label>
+                    <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1">{t('auth.password')}</label>
                     <input
                       type="password"
                       required
@@ -351,7 +351,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
               
               <div className="relative my-1">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[var(--panel-border)]"></div></div>
-                <div className="relative flex justify-center text-[10px] uppercase font-bold"><span className="bg-[var(--panel-bg)] px-2 text-[var(--text-muted)]">{t('auth.or')}</span></div>
+                <div className="relative flex justify-center text-xs font-semibold"><span className="bg-[var(--panel-bg)] px-2 text-[var(--text-muted)]">{t('auth.or')}</span></div>
               </div>
               
               <div className="flex flex-col gap-2.5">
@@ -380,7 +380,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess, currentUser, onLogo
                 </button>
               </div>
 
-              <p className="text-[10px] text-center text-[var(--text-muted)] leading-relaxed">
+              <p className="text-xs text-center text-[var(--text-muted)] leading-relaxed">
                 {t('auth.importantFirebase')}
               </p>
             </div>
