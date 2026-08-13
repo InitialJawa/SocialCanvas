@@ -408,31 +408,21 @@ export function PreviewArea({
   ];
 
   return (
-    <div className="flex flex-col h-full glass-panel rounded-lg shadow-xl overflow-hidden relative">
-      <Toolbar 
-        scale={scale} 
-        setScale={setScale} 
-        showGrid={showGrid} 
-        setShowGrid={setShowGrid} 
-        centerCanvas={centerCanvas} 
-        cardTheme={state.theme}
-        onCardThemeChange={(theme) => onStateChange({ theme })}
-      />
-
-      {/* Top Floating Controls */}
-      <div className="absolute top-4 inset-x-4 z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pointer-events-none">
-        {/* Floating Platform Dock */}
-        <div className="flex bg-[var(--panel-bg)]/85 backdrop-blur-md border border-[var(--panel-border)] rounded-xl p-1 shadow-lg items-center gap-1 pointer-events-auto shrink-0 max-w-full overflow-x-auto custom-scrollbar self-start">
+    <div className="flex-1 w-full flex flex-col glass-panel rounded-lg shadow-xl overflow-hidden relative bg-[var(--root-bg)]">
+      {/* Top Header Row */}
+      <div className="flex flex-row justify-between items-center gap-2 p-2 sm:p-3 border-b border-[var(--panel-border)] bg-[var(--panel-bg)]/30 z-20 shrink-0">
+        {/* Platform Dock */}
+        <div className="flex items-center gap-1 shrink-0 overflow-x-auto custom-scrollbar max-w-[60%]">
            {platforms.map((p) => {
              const isActive = state.platform === p.id;
              return (
                <button
                  key={p.id}
                  onClick={() => onStateChange({ platform: p.id })}
-                 className={`relative flex items-center justify-center shrink-0 p-2 sm:p-2.5 rounded-lg transition-all duration-200 ${
+                 className={`relative flex items-center justify-center shrink-0 p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                    isActive 
-                     ? 'bg-[var(--root-bg)] shadow-sm text-[var(--root-fg)]' 
-                     : 'text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--button-hover)]/40'
+                     ? 'bg-[var(--root-bg)] shadow-sm text-[var(--root-fg)] border border-[var(--panel-border)]' 
+                     : 'text-[var(--text-muted)] hover:text-[var(--root-fg)] hover:bg-[var(--button-hover)]/40 border border-transparent'
                  }`}
                  title={`Switch to ${p.label}`}
                >
@@ -445,22 +435,22 @@ export function PreviewArea({
         </div>
         
         {/* Action Buttons: Randomize, Snapshot, and Export */}
-        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 pointer-events-auto shrink-0 self-start sm:self-auto max-w-full">
+        <div className="flex flex-nowrap items-center justify-end gap-1.5 shrink-0">
           <button
             onClick={onRandomize}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer select-none"
+            className="flex items-center justify-center w-8 h-8 lg:w-auto lg:h-auto lg:px-3 lg:py-1.5 bg-[var(--root-bg)] border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-lg shadow-sm transition-all cursor-pointer select-none"
             title="Randomize Content"
           >
             <Shuffle className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
-            <span className="hidden sm:inline">Randomize</span>
+            <span className="hidden lg:inline lg:ml-1.5">Randomize</span>
           </button>
           <button
             onClick={handleSnapshot}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer select-none"
-            title="Quick Snapshot for Side-by-Side Comparison"
+            className="flex items-center justify-center w-8 h-8 lg:w-auto lg:h-auto lg:px-3 lg:py-1.5 bg-[var(--root-bg)] border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-lg shadow-sm transition-all cursor-pointer select-none"
+            title="Quick Snapshot"
           >
             <Image className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
-            <span className="hidden sm:inline">Snapshot</span>
+            <span className="hidden lg:inline lg:ml-1.5">Snapshot</span>
           </button>
           
           <ExportCard 
@@ -765,6 +755,19 @@ export function PreviewArea({
             </motion.div>
           </div>
         )}
+      </div>
+
+      {/* Bottom Footer Toolbar */}
+      <div className="flex flex-row justify-center items-center p-2 border-t border-[var(--panel-border)] bg-[var(--panel-bg)]/30 z-20 shrink-0">
+        <Toolbar 
+          scale={scale} 
+          setScale={setScale} 
+          showGrid={showGrid} 
+          setShowGrid={setShowGrid} 
+          centerCanvas={centerCanvas} 
+          cardTheme={state.theme}
+          onCardThemeChange={(theme) => onStateChange({ theme })}
+        />
       </div>
 
       {/* Canvas Status Bar */}

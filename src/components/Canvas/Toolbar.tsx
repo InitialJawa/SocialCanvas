@@ -16,7 +16,7 @@ export function Toolbar({ scale, setScale, showGrid, setShowGrid, centerCanvas, 
   const predefinedScales = [0.5, 0.75, 1, 1.25, 1.5];
 
   return (
-    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex items-center gap-1.5 p-1.5 bg-[var(--panel-bg)]/85 backdrop-blur-md border border-[var(--panel-border)] shadow-lg rounded-lg z-20">
+    <div className="flex items-center gap-1 sm:gap-1.5 p-1.5 bg-[var(--panel-bg)]/85 backdrop-blur-md border border-[var(--panel-border)] shadow-sm rounded-xl">
       {/* Premium On/Off Switch style toggle with symbols for light/dark card background */}
       <button
         onClick={() => onCardThemeChange(cardTheme === 'light' ? 'dark' : 'light')}

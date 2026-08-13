@@ -603,7 +603,7 @@ export default function App() {
           <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch min-h-0 md:overflow-hidden relative">
             
             {/* Live Preview Area - Order 1 (Top) on Mobile, Order 2 (Right) on PC */}
-            <div className="order-1 md:order-2 flex flex-col md:h-auto md:flex-1 md:min-h-0 overflow-hidden relative shrink-0 z-20" style={{ height: typeof window !== "undefined" && window.innerWidth < 768 ? `${mobilePreviewHeight}px` : undefined }}>
+            <div className="order-1 md:order-2 flex flex-col md:h-auto md:flex-1 md:min-h-0 h-[50vh] sm:h-[55vh] overflow-hidden relative shrink-0 z-20">
                <PreviewArea 
                  state={state} 
                  onStateChange={handleStateChange}
@@ -620,15 +620,6 @@ export default function App() {
                  onRandomize={handleRandomize}
                />
 
-            </div>
-
-            {/* Mobile Drag Handle - Sibling in Flex flow to avoid overlapping the status bar */}
-            <div 
-               className="order-1 md:hidden h-4 flex items-center justify-center cursor-ns-resize bg-[var(--panel-bg)]/80 backdrop-blur-sm border-t border-b border-[var(--panel-border)]/60 shrink-0 z-30 animate-pulse"
-               onMouseDown={handleTouchStart}
-               onTouchStart={handleTouchStart}
-            >
-               <div className="w-12 h-1 bg-[var(--text-muted)] opacity-40 rounded-full pointer-events-none" />
             </div>
 
             {/* Properties Panel - Order 2 (Bottom) on Mobile, Order 1 (Left) on PC */}

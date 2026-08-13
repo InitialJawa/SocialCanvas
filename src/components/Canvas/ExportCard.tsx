@@ -28,11 +28,11 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
       {/* Collapsible Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3.5 py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-lg shadow-md transition-all cursor-pointer select-none"
+        className="flex items-center justify-center w-8 h-8 lg:w-auto lg:h-auto lg:px-3.5 lg:py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer select-none"
       >
-        <Download className="w-4 h-4 text-[var(--accent)]" />
-        <span>Export</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <Download className="w-4 h-4 text-[var(--accent)] shrink-0" />
+        <span className="hidden lg:inline lg:mx-1.5">Export</span>
+        <ChevronDown className={`hidden lg:block w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Export Options Panel */}
