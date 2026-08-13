@@ -1,29 +1,31 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Sparkles, 
   Crown,
   ArrowRight, 
-  ShieldCheck, 
   Zap, 
-  Flame, 
-  Video, 
   Award, 
   Check, 
   Monitor, 
   Sliders, 
   Image as ImageIcon,
   Heart,
-  HelpCircle,
-  MessageCircle,
-  ArrowUpRight,
   Globe,
   Sun,
-  Moon
+  Moon,
+  MoveDiagonal
 } from 'lucide-react';
 import { TikTokColoredIcon, InstagramColoredIcon, YouTubeColoredIcon, TwitterColoredIcon, KickColoredIcon } from './icons';
 import { CapybaraLogo } from './CapybaraLogo';
 import { useLanguage } from '../contexts/LanguageContext';
+import { TikTokPreview } from './previews/TikTokPreview';
+import { InstagramPreview } from './previews/InstagramPreview';
+import { YouTubePreview } from './previews/YouTubePreview';
+import { TwitterPreview } from './previews/TwitterPreview';
+import { KickLivePreview } from './previews/KickLivePreview';
+import { IGLivePreview } from './previews/IGLivePreview';
+import { landingSamples } from '../data/landingSamples';
+import { Platform } from '../types';
 
 interface Props {
   onStartEditor: (platform?: any) => void;
@@ -86,14 +88,6 @@ export function LandingPage({
         : 'Supports direct PNG export with a transparent background (no-background) which facilitates editing directly in CapCut / Premiere video editing apps.',
       icon: <ImageIcon className="w-5 h-5 text-emerald-400" />
     }
-  ];
-
-  const platforms = [
-    { name: 'TikTok', icon: <TikTokColoredIcon className="w-6 h-6" />, path: '/tiktok-generator' },
-    { name: 'Instagram', icon: <InstagramColoredIcon className="w-7 h-7" />, path: '/instagram-generator' },
-    { name: 'YouTube', icon: <YouTubeColoredIcon className="w-7 h-7" />, path: '/youtube-generator' },
-    { name: 'Twitter/X', icon: <TwitterColoredIcon className="w-7 h-7" />, path: '/twitter-generator' },
-    { name: 'Kick Live', icon: <KickColoredIcon className="w-6 h-6" fontSize="16px" />, path: '/kick-generator' },
   ];
 
   const pathData: Record<string, { title: Record<'id' | 'en', string>; subtitle: Record<'id' | 'en', string>; badge: Record<'id' | 'en', string>; focusPlatform?: string }> = {
@@ -201,6 +195,38 @@ export function LandingPage({
   const heroAccent = heroWords.slice(-2).join(' ');
   const heroAccentPos = meta.title.lastIndexOf(heroAccent);
   const heroBase = heroAccentPos > 0 ? meta.title.slice(0, heroAccentPos).trim() : meta.title;
+
+  const [activePlatform, setActivePlatform] = useState<Platform>(meta.focusPlatform ?? 'tiktok');
+  const mockupTabOrder: Platform[] = ['tiktok', 'instagram', 'youtube', 'twitter', 'kick_live'];
+  const mockupTabs: Record<Platform, { name: string; icon: React.ReactNode }> = {
+    tiktok: { name: 'TikTok', icon: <TikTokColoredIcon className="w-4 h-4" /> },
+    instagram: { name: 'Instagram', icon: <InstagramColoredIcon className="w-4 h-4" /> },
+    youtube: { name: 'YouTube', icon: <YouTubeColoredIcon className="w-4 h-4" /> },
+    twitter: { name: 'Twitter/X', icon: <TwitterColoredIcon className="w-4 h-4" /> },
+    kick_live: { name: 'Kick Live', icon: <KickColoredIcon className="w-4 h-4" fontSize="10px" /> },
+  };
+
+  const renderPreview = (platform: Platform) => {
+    const props = { state: landingSamples[platform] };
+    switch (platform) {
+      case 'tiktok': return <TikTokPreview {...props} />;
+      case 'instagram': return landingSamples[platform].instagramTemplate === 'live'
+        ? <IGLivePreview {...props} />
+        : <InstagramPreview {...props} />;
+      case 'youtube': return <YouTubePreview {...props} />;
+      case 'twitter': return <TwitterPreview {...props} />;
+      case 'kick_live': return <KickLivePreview {...props} />;
+    }
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: i * 0.08, ease: 'easeOut' }
+    })
+  };
 
   return (
     <div className="min-h-screen bg-[var(--root-bg)] text-[var(--root-fg)] selection:bg-[var(--accent)]/20">
@@ -400,23 +426,48 @@ export function LandingPage({
         /* Standard Dynamic Landing Page (Main, Twitter, TikTok, Instagram, YouTube) */
         <>
           {/* Hero Section */}
-          <section className="relative px-4 pt-20 pb-16 sm:pt-24 sm:pb-20 max-w-5xl mx-auto text-center flex flex-col items-center">
-            <div className="inline-flex items-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-xs font-semibold px-3 py-1.5 rounded-full mb-8 select-none">
+          <section className="relative px-4 pt-20 pb-16 sm:pt-24 sm:pb-20 max-w-5xl mx-auto text-center flex flex-col items-center overflow-hidden">
+            {/* Soft radial spotlight behind mockup */}
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[520px] -z-10"
+              style={{ background: 'radial-gradient(ellipse 60% 45% at 50% 0%, var(--accent)/10, transparent 70%)' }}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="inline-flex items-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-xs font-semibold px-3 py-1.5 rounded-full mb-8 select-none"
+            >
               <Crown className="w-3.5 h-3.5" />
               {meta.badge}
-            </div>
+            </motion.div>
 
-            <h1 className="font-sans text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.1] max-w-4xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="font-sans text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.1] max-w-4xl"
+            >
               {heroBase} <span className="text-[var(--accent)]">{heroAccent}</span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-sm sm:text-base text-[var(--text-muted)] max-w-2xl mt-6 leading-relaxed">
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="text-sm sm:text-base text-[var(--text-muted)] max-w-2xl mt-6 leading-relaxed"
+            >
               {meta.subtitle}
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-10">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-3 mt-10"
+            >
               <button
-                onClick={() => onStartEditor(meta.focusPlatform)}
+                onClick={() => onStartEditor(activePlatform)}
                 className="px-6 py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--root-bg)] font-semibold text-sm rounded-xl flex items-center gap-2 shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
                 {t('landing.start')}
@@ -430,49 +481,99 @@ export function LandingPage({
                 <Zap className="w-4 h-4 text-[var(--accent)]" />
                 {t('landing.compare')}
               </button>
-            </div>
+            </motion.div>
 
-            {/* Platform Cards */}
-            <div className="mt-14 w-full max-w-4xl">
-              <p className="text-sm text-[var(--text-muted)] mb-4">{t('landing.platformsDesc')}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                {platforms.map((p) => (
-                  <button
-                    key={p.path}
-                    onClick={() => onNavigate(p.path)}
-                    className={`flex flex-col items-center gap-3 py-5 rounded-xl border transition-all cursor-pointer ${
-                      normalizedPath === p.path 
-                        ? 'border-[var(--accent)]/40 bg-[var(--accent)]/5 ring-1 ring-[var(--accent)]/20' 
-                        : 'border-[var(--panel-border)] bg-[var(--panel-bg)] hover:border-[var(--panel-border)] hover:bg-[var(--button-hover)]'
-                    }`}
-                  >
-                    {p.icon}
-                    <span className="text-sm font-semibold">{p.name}</span>
-                  </button>
-                ))}
+            {/* Live Product Mockup — Tab Switcher */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.28 }}
+              className="mt-16 w-full max-w-lg"
+            >
+              <div className="rounded-2xl border border-[var(--panel-border)] bg-[var(--panel-bg)] shadow-2xl overflow-hidden">
+                {/* Window chrome */}
+                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[var(--panel-border)]">
+                  <div className="flex gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+                    <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+                    <span className="w-3 h-3 rounded-full bg-[#28c840]" />
+                  </div>
+                  <div className="flex-1 flex items-center justify-center">
+                    <span className="text-[11px] text-[var(--text-muted)] font-medium bg-[var(--input-bg)] border border-[var(--panel-border)] rounded-md px-3 py-0.5 truncate max-w-[220px]">
+                      socialcanvas.app/{activePlatform}
+                    </span>
+                  </div>
+                  <MoveDiagonal className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                </div>
+
+                {/* Preview canvas */}
+                <div className="relative flex items-center justify-center p-4 sm:p-6 min-h-[260px] bg-[var(--root-bg)]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activePlatform}
+                      initial={{ opacity: 0, x: 16, scale: 0.98 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -16, scale: 0.98 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      className="pointer-events-none select-none w-full flex justify-center"
+                    >
+                      {renderPreview(activePlatform)}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
               </div>
-            </div>
+
+              {/* Platform tab switcher */}
+              <div className="mt-4 grid grid-cols-5 gap-2">
+                {mockupTabOrder.map((p) => {
+                  const active = activePlatform === p;
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => setActivePlatform(p)}
+                      className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-[11px] font-semibold transition-all cursor-pointer ${
+                        active
+                          ? 'border-[var(--accent)]/50 bg-[var(--accent)]/10 text-[var(--accent)]'
+                          : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--button-hover)] hover:text-[var(--root-fg)]'
+                      }`}
+                    >
+                      {mockupTabs[p].icon}
+                      <span className="hidden sm:block">{mockupTabs[p].name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
           </section>
 
           {/* Grid Features */}
           <section className="px-4 py-16 bg-[var(--panel-bg)] border-t border-b border-[var(--panel-border)]/50">
             <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-12">
+              <motion.div
+                initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
+                variants={fadeUp} custom={0}
+                className="text-center mb-12"
+              >
                 <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{t('landing.featuresTitle')}</h2>
                 <p className="text-sm text-[var(--text-muted)] mt-2">{t('landing.featuresDesc')}</p>
-              </div>
+              </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {features.map((f, i) => (
-                  <div key={i} className="p-6 rounded-xl border border-[var(--panel-border)] bg-[var(--root-bg)]/40 hover:border-[var(--accent)]/30 transition-all flex gap-4 group">
-                    <div className="w-11 h-11 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/15 flex items-center justify-center shrink-0">
+                  <motion.div
+                    key={i}
+                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}
+                    variants={fadeUp} custom={i}
+                    className="p-6 rounded-xl border border-[var(--panel-border)] bg-[var(--root-bg)]/40 hover:border-[var(--accent)]/30 hover:bg-[var(--root-bg)]/70 transition-all flex gap-4 group"
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/15 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
                       {f.icon}
                     </div>
                     <div>
                       <h3 className="font-semibold text-base">{f.title}</h3>
                       <p className="text-sm text-[var(--text-muted)] leading-relaxed mt-1.5">{f.desc}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -480,27 +581,39 @@ export function LandingPage({
 
           {/* Stats Section */}
           <section className="px-4 py-12 max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--panel-border)] border border-[var(--panel-border)] rounded-xl overflow-hidden">
+            <motion.div
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }}
+              variants={fadeUp} custom={0}
+              className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--panel-border)] border border-[var(--panel-border)] rounded-xl overflow-hidden"
+            >
               {stats.map((s, i) => (
-                <div key={i} className="p-6 bg-[var(--panel-bg)] flex flex-col items-center justify-center gap-1.5">
-                  <div className="text-2xl sm:text-3xl font-bold text-[var(--accent)] tracking-tight">{s.value}</div>
+                <div key={i} className="p-6 bg-[var(--panel-bg)] flex flex-col items-center justify-center gap-1.5 group">
+                  <div className="text-2xl sm:text-3xl font-bold text-[var(--accent)] tracking-tight group-hover:scale-110 transition-transform duration-300">{s.value}</div>
                   <div className="text-xs text-[var(--text-muted)] font-medium text-center">{s.label}</div>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </section>
 
           {/* SaaS Pricing Section */}
           <section className="px-4 py-16 bg-[var(--panel-bg)]/60 border-t border-[var(--panel-border)]">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="mb-12">
+              <motion.div
+                initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
+                variants={fadeUp} custom={0}
+                className="mb-12"
+              >
                 <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{t('pricing.title')}</h2>
                 <p className="text-sm text-[var(--text-muted)] mt-2">{t('pricing.subtitle')}</p>
-              </div>
+              </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto text-left">
                 {/* Free Plan */}
-                <div className="bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-2xl p-7 flex flex-col justify-between shadow-sm relative overflow-hidden">
+                <motion.div
+                  initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}
+                  variants={fadeUp} custom={0}
+                  className="bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-2xl p-7 flex flex-col justify-between shadow-sm relative overflow-hidden"
+                >
                   <div>
                     <h3 className="text-lg font-semibold">{t('pricing.free.title')}</h3>
                     <p className="text-sm text-[var(--text-muted)] mt-1">{t('pricing.free.desc')}</p>
@@ -540,10 +653,14 @@ export function LandingPage({
                   >
                     {t('pricing.free.btn')}
                   </button>
-                </div>
+                </motion.div>
 
                 {/* PRO Creator Plan */}
-                <div className="bg-[var(--root-bg)] border border-[var(--accent)]/50 rounded-2xl p-7 flex flex-col justify-between shadow-lg relative overflow-hidden">
+                <motion.div
+                  initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}
+                  variants={fadeUp} custom={1}
+                  className="bg-[var(--root-bg)] border border-[var(--accent)]/50 rounded-2xl p-7 flex flex-col justify-between shadow-lg relative overflow-hidden"
+                >
                   <div className="absolute top-4 right-4 bg-[var(--accent)]/10 text-[var(--accent)] text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
                     {t('pricing.recommended')}
@@ -592,7 +709,7 @@ export function LandingPage({
                   >
                     {isPremium ? (language === 'id' ? 'Sudah Aktif' : 'Already Active') : t('pricing.pro.btn')}
                   </button>
-                </div>
+                </motion.div>
               </div>
             </div>
           </section>
