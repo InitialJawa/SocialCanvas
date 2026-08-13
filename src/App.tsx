@@ -632,7 +632,7 @@ export default function App() {
             </div>
 
             {/* Properties Panel - Order 2 (Bottom) on Mobile, Order 1 (Left) on PC */}
-            <div className="order-2 md:order-1 w-full md:w-[320px] lg:w-[365px] flex flex-col shrink-0 md:shrink md:min-h-0 md:overflow-hidden z-10">
+            <div className="order-2 md:order-1 w-full md:w-[280px] lg:w-[365px] flex flex-col shrink-0 md:shrink md:min-h-0 md:overflow-hidden z-10">
               <Sidebar 
                 state={state} 
                 onChange={handleStateChange}

@@ -208,7 +208,7 @@ export function Sidebar({
   ];
 
   return (
-    <div className="flex flex-col md:h-full glass-panel rounded-2xl md:overflow-hidden w-full md:w-[320px] lg:w-[365px] shrink-0 shadow-lg">
+    <div className="flex flex-col md:h-full glass-panel rounded-2xl md:overflow-hidden w-full md:w-[280px] lg:w-[365px] shrink-0 shadow-lg">
       {/* Scrollable area for properties */}
       <div className={`md:flex-1 ${activeTab === 'gallery' ? 'md:overflow-hidden min-h-0' : 'md:overflow-y-auto custom-scrollbar'} flex flex-col`}>
         {/* TAB NAVIGATION */}
