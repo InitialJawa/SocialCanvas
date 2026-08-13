@@ -432,63 +432,12 @@ export function LandingPage({
               style={{ background: 'radial-gradient(ellipse 60% 45% at 50% 0%, var(--accent)/10, transparent 70%)' }}
             />
 
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.05 }}
-              className="inline-flex items-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-xs font-semibold px-3 py-1.5 rounded-full mb-8 select-none"
-            >
-              <Crown className="w-3.5 h-3.5" />
-              {meta.badge}
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="font-sans text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.1] max-w-4xl"
-            >
-              {heroBase} <span className="text-[var(--accent)]">{heroAccent}</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="text-sm sm:text-base text-[var(--text-muted)] max-w-2xl mt-6 leading-relaxed"
-            >
-              {meta.subtitle}
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-3 mt-10"
-            >
-              <button
-                onClick={() => onStartEditor(activePlatform)}
-                className="px-6 py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--root-bg)] font-semibold text-sm rounded-xl flex items-center gap-2 shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
-              >
-                {t('landing.start')}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              
-              <button
-                onClick={onUpgradeClick}
-                className="px-6 py-3 bg-[var(--panel-bg)] hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-sm rounded-xl border border-[var(--panel-border)] flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-              >
-                <Zap className="w-4 h-4 text-[var(--accent)]" />
-                {t('landing.compare')}
-              </button>
-            </motion.div>
-
             {/* Live Product Mockup — Tab Switcher */}
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.28 }}
-              className="mt-16 w-full max-w-lg"
+              transition={{ duration: 0.6, delay: 0.05 }}
+              className="w-full max-w-lg"
             >
               <div className="rounded-2xl border border-[var(--panel-border)] bg-[var(--panel-bg)] shadow-2xl overflow-hidden">
                 {/* Window chrome */}
@@ -543,6 +492,47 @@ export function LandingPage({
                   );
                 })}
               </div>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="font-sans text-4xl sm:text-6xl font-semibold tracking-tight leading-[1.1] max-w-4xl mt-12"
+            >
+              {heroBase} <span className="text-[var(--accent)]">{heroAccent}</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="text-sm sm:text-base text-[var(--text-muted)] max-w-2xl mt-6 leading-relaxed"
+            >
+              {meta.subtitle}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-3 mt-10"
+            >
+              <button
+                onClick={() => onStartEditor(activePlatform)}
+                className="px-6 py-3 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--root-bg)] font-semibold text-sm rounded-xl flex items-center gap-2 shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                {t('landing.start')}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={onUpgradeClick}
+                className="px-6 py-3 bg-[var(--panel-bg)] hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-sm rounded-xl border border-[var(--panel-border)] flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                <Zap className="w-4 h-4 text-[var(--accent)]" />
+                {t('landing.compare')}
+              </button>
             </motion.div>
           </section>
 
