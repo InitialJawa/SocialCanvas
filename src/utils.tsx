@@ -120,7 +120,7 @@ export function renderFormattedText(text: string) {
   return parts.map((part, index) => {
     if (part.startsWith('[highlight]') && part.endsWith('[/highlight]')) {
       const content = part.substring(11, part.length - 12);
-      return <mark key={index} className="bg-yellow-300 text-black px-0.5 rounded">{content}</mark>;
+      return <mark key={index} className="bg-zinc-200 dark:bg-zinc-700 text-inherit px-0.5 rounded">{content}</mark>;
     }
     if (part.startsWith('[blur]') && part.endsWith('[/blur]')) {
       const content = part.substring(6, part.length - 7);

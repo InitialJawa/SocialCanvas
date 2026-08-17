@@ -79,7 +79,7 @@ export function LandingPage({
       desc: language === 'id'
         ? 'Unduh hasil gambar dengan penskalaan resolusi super tajam (sampai 4x) untuk menjamin screenshot tidak pecah di layar HP manapun.'
         : 'Download image results with super sharp resolution scaling (up to 4x) to guarantee screenshots do not break on any phone screen.',
-      icon: <Award className="w-5 h-5 text-yellow-400" />
+      icon: <Award className="w-5 h-5 text-[var(--accent)]" />
     },
     {
       title: language === 'id' ? 'Ekspor Transparan & Indah' : 'Beautiful & Transparent Export',

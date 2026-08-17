@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Download, CheckCircle2, Loader2, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { Button, Select, Label } from '../ui';
 import { motion, AnimatePresence } from 'motion/react';
@@ -16,6 +16,17 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
   const [scale, setScale] = useState(2);
   const [format, setFormat] = useState<'png' | 'jpg' | 'webp' | 'transparent'>('png');
   const [success, setSuccess] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleExport = async () => {
     await onExport(scale, format);
@@ -24,9 +35,10 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
   };
 
   return (
-    <>
+    <div className="relative inline-block" ref={cardRef}>
       {/* Collapsible Trigger Button */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-center w-8 h-8 lg:w-auto lg:h-auto lg:px-3.5 lg:py-2 bg-[var(--panel-bg)]/90 backdrop-blur-md border border-[var(--panel-border)] hover:border-[var(--accent)]/50 hover:bg-[var(--button-hover)] text-[var(--root-fg)] font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer select-none"
       >
@@ -39,11 +51,11 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 6, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            exit={{ opacity: 0, y: 6, scale: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute top-[110%] right-0 w-[280px] bg-[var(--panel-bg)]/95 backdrop-blur-xl border border-[var(--panel-border)] shadow-xl rounded-lg p-4 z-30 flex flex-col gap-4"
+            className="absolute top-full right-0 mt-2 w-[280px] bg-[var(--panel-bg)] border border-[var(--panel-border)] shadow-2xl rounded-2xl p-4 z-50 flex flex-col gap-4 backdrop-blur-2xl"
           >
             <div className="flex items-center gap-2 text-[var(--root-fg)] font-semibold text-sm">
               <ImageIcon className="w-4 h-4 text-[var(--accent)]" />
@@ -102,6 +114,7 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
                     />
                   </div>
                   <button 
+                    type="button"
                     onClick={() => {
                       setIsOpen(false);
                       onUpgradeClick();
@@ -121,6 +134,6 @@ export function ExportCard({ onExport, isExporting, isPremium, exportCount, onUp
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

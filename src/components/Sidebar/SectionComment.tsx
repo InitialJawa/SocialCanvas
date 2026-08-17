@@ -187,7 +187,7 @@ export function SectionComment({ state, onChange }: Props) {
         {/* Advanced Edits */}
         <div className="mt-3 flex items-center justify-between bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-lg p-1">
           <div className="flex gap-1">
-            <button title="Highlight" type="button" onMouseDown={(e) => { e.preventDefault(); applyFormat('highlight'); }} className="w-8 h-8 rounded-md hover:bg-[var(--panel-bg)] flex items-center justify-center text-[var(--text-muted)] hover:text-yellow-500 transition">
+            <button title="Highlight" type="button" onMouseDown={(e) => { e.preventDefault(); applyFormat('highlight'); }} className="w-8 h-8 rounded-md hover:bg-[var(--panel-bg)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent)] transition">
               <Highlighter className="w-4 h-4" />
             </button>
             <button title="Blur" type="button" onMouseDown={(e) => { e.preventDefault(); applyFormat('blur'); }} className="w-8 h-8 rounded-md hover:bg-[var(--panel-bg)] flex items-center justify-center text-[var(--text-muted)] hover:text-blue-500 transition">
@@ -206,7 +206,7 @@ export function SectionComment({ state, onChange }: Props) {
 
       <div>
         <div className="flex items-center gap-1.5 mb-2">
-          <Zap className="w-3.5 h-3.5 text-yellow-500" />
+          <Zap className="w-3.5 h-3.5 text-[var(--accent)]" />
           <Label className="mb-0">Quick Presets</Label>
         </div>
         <div className="grid grid-cols-2 gap-2">

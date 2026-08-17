@@ -6,7 +6,8 @@ import { YouTubePreview } from './previews/YouTubePreview';
 import { TwitterPreview } from './previews/TwitterPreview';
 import { KickLivePreview } from './previews/KickLivePreview';
 import { IGLivePreview } from './previews/IGLivePreview';
-import { toPng, toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas';
+import { toPng, toCanvas } from 'html-to-image';
 import { Toolbar } from './Canvas/Toolbar';
 import { ExportCard } from './Canvas/ExportCard';
 import { 
@@ -68,6 +69,126 @@ export function PreviewArea({
     y.set(0);
   };
 
+  const fetchImageAsBase64 = async (src: string): Promise<string> => {
+    if (!src || src.startsWith('data:')) return src;
+    try {
+      const res = await fetch(src, { mode: 'cors' });
+      if (res.ok) {
+        const blob = await res.blob();
+        return await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve((reader.result as string) || '');
+          reader.onerror = () => resolve('');
+          reader.readAsDataURL(blob);
+        });
+      }
+    } catch {
+      // ignore fetch error
+    }
+    try {
+      return await new Promise<string>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const cvs = document.createElement('canvas');
+            cvs.width = img.naturalWidth || img.width || 100;
+            cvs.height = img.naturalHeight || img.height || 100;
+            const ctx = cvs.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              resolve(cvs.toDataURL('image/png'));
+              return;
+            }
+          } catch {
+            // Tainted
+          }
+          resolve('');
+        };
+        img.onerror = () => resolve('');
+        img.src = src;
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  const captureNodeToCanvas = async (
+    targetNode: HTMLElement,
+    exportScale: number,
+    format: 'png' | 'jpg' | 'webp' | 'transparent'
+  ): Promise<HTMLCanvasElement> => {
+    // Clone node to avoid layout shifts or canvas transform issues
+    const clone = targetNode.cloneNode(true) as HTMLElement;
+
+    // Remove no-export elements
+    const noExports = clone.querySelectorAll('.no-export, [data-html2canvas-ignore="true"]');
+    noExports.forEach(el => el.remove());
+
+    const rect = targetNode.getBoundingClientRect();
+    const width = Math.round(targetNode.offsetWidth || rect.width || 600);
+    const height = Math.round(targetNode.offsetHeight || rect.height || 400);
+
+    // Create isolated offscreen container
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '-9999px';
+    container.style.zIndex = '-9999';
+    container.style.width = `${width}px`;
+    container.style.height = `${height}px`;
+    container.style.overflow = 'hidden';
+    container.style.background = 'transparent';
+
+    clone.style.transform = 'none';
+    clone.style.margin = '0';
+    clone.style.width = `${width}px`;
+    clone.style.height = `${height}px`;
+
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    try {
+      // Replace all image sources with base64 data URLs
+      const images = Array.from(clone.querySelectorAll('img'));
+      await Promise.all(
+        images.map(async (img) => {
+          const src = img.src;
+          if (!src || src.startsWith('data:')) return;
+          const base64 = await fetchImageAsBase64(src);
+          if (base64 && base64.startsWith('data:')) {
+            img.src = base64;
+          } else {
+            // Fallback SVG avatar placeholder if cross-origin image fails completely
+            img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23222225"/><circle cx="50" cy="40" r="22" fill="%2344444a"/><path d="M18 88 Q50 56 82 88" fill="%2344444a"/></svg>';
+          }
+        })
+      );
+
+      // Brief pause for layout settling
+      await new Promise(r => setTimeout(r, 80));
+
+      const isJpg = format === 'jpg';
+      const canvas = await html2canvas(clone, {
+        scale: exportScale || 2,
+        useCORS: true,
+        allowTaint: false, // CRITICAL: false to prevent DOMException on export
+        backgroundColor: isJpg 
+          ? (state.theme === 'dark' ? '#121212' : '#ffffff')
+          : null,
+        logging: false,
+        width: width,
+        height: height
+      });
+
+      return canvas;
+    } finally {
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
+    }
+  };
+
   const handleExport = async (exportScale: number, format: 'png' | 'jpg' | 'webp' | 'transparent') => {
     if (!previewRef.current) return;
     
@@ -84,51 +205,33 @@ export function PreviewArea({
     }
     
     setIsExporting(true);
-    try {
-      // Temporarily reset transform for clean export
-      const originalTransform = previewRef.current.style.transform;
-      previewRef.current.style.transform = `scale(1) translate(0px, 0px)`;
-      
-      await new Promise(r => setTimeout(r, 100)); // wait for dom to update
-      
-      const isJpg = format === 'jpg';
-      const options = {
-        cacheBust: true,
-        pixelRatio: exportScale,
-        backgroundColor: isJpg ? (state.theme === 'dark' ? '#000000' : '#ffffff') : 'transparent',
-        style: { margin: '0' },
-        filter: (node: HTMLElement) => {
-          if (node.classList && (node.classList.contains('no-export') || node.getAttribute?.('data-html2canvas-ignore') === 'true')) {
-            return false;
-          }
-          return true;
-        },
-        styleSheetsFilter: (styleSheet: CSSStyleSheet) => {
-          try {
-            const rules = styleSheet.cssRules;
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-      };
 
-      let dataUrl = '';
-      if (format === 'jpg') {
-        dataUrl = await toJpeg(previewRef.current, options);
-      } else {
-        dataUrl = await toPng(previewRef.current, options);
+    try {
+      const canvas = await captureNodeToCanvas(previewRef.current, exportScale, format);
+
+      const fileExt = format === 'transparent' ? 'png' : format;
+      const fileName = `sosmedcomment-${state.platform}-${Date.now()}.${fileExt}`;
+      const mimeType = format === 'jpg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
+
+      const dataUrl = canvas.toDataURL(mimeType, 0.95);
+      if (!dataUrl) {
+        throw new Error('Export produced empty image data');
       }
-      
+
       const link = document.createElement('a');
-      link.download = `sosmedcomment-${state.platform}-${Date.now()}.${format === 'transparent' ? 'png' : format}`;
+      link.download = fileName;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
-      
-      previewRef.current.style.transform = originalTransform;
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+      }, 300);
+
     } catch (err) {
-      console.error('Failed to export', err);
-      alert('Gagal mengekspor gambar.');
+      console.error('Failed to export image:', err);
+      alert('Gagal mengekspor gambar. Silakan coba lagi.');
     } finally {
       setIsExporting(false);
     }
@@ -137,36 +240,13 @@ export function PreviewArea({
   const handleSnapshot = async () => {
     if (!previewRef.current || !onAddSnapshot) return;
     try {
-      const originalTransform = previewRef.current.style.transform;
-      previewRef.current.style.transform = `scale(1) translate(0px, 0px)`;
-      await new Promise(r => setTimeout(r, 100)); // wait for dom to update
-      
-      const options = {
-        cacheBust: true,
-        pixelRatio: 1,
-        backgroundColor: 'transparent',
-        style: { margin: '0' },
-        filter: (node: HTMLElement) => {
-          if (node.classList && (node.classList.contains('no-export') || node.getAttribute?.('data-html2canvas-ignore') === 'true')) {
-            return false;
-          }
-          return true;
-        },
-        styleSheetsFilter: (styleSheet: CSSStyleSheet) => {
-          try {
-            const rules = styleSheet.cssRules;
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-      };
-
-      const dataUrl = await toPng(previewRef.current, options);
-      onAddSnapshot(dataUrl);
-      previewRef.current.style.transform = originalTransform;
+      const canvas = await captureNodeToCanvas(previewRef.current, 1, 'png');
+      const dataUrl = canvas.toDataURL('image/png');
+      if (dataUrl) {
+        onAddSnapshot(dataUrl);
+      }
     } catch (err) {
-      console.error('Failed to create snapshot', err);
+      console.error('Failed to create snapshot:', err);
     }
   };
 
@@ -625,7 +705,7 @@ export function PreviewArea({
                         title="Highlight" 
                         type="button" 
                         onMouseDown={(e) => { e.preventDefault(); applyModalFormat('highlight'); }} 
-                        className="w-6 h-6 rounded hover:bg-[var(--button-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-yellow-500 transition cursor-pointer"
+                        className="w-6 h-6 rounded hover:bg-[var(--button-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent)] transition cursor-pointer"
                       >
                         <Highlighter className="w-3.5 h-3.5" />
                       </button>

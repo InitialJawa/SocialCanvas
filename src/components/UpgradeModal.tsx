@@ -31,8 +31,8 @@ export function UpgradeModal({ isOpen, onClose, onUpgradeSuccess, isPremium, onD
   };
 
   const features = [
-    { title: 'Unlimited Exports', desc: 'Ekspor tanpa batas harian (bebas dari limit 30 per hari).', icon: <Flame className="w-4 h-4 text-orange-500 shrink-0" /> },
-    { title: 'Resolusi Ultra HD (4x)', desc: 'Hasil tangkapan layar super tajam hingga 4x untuk layar retina.', icon: <Award className="w-4 h-4 text-yellow-500 shrink-0" /> },
+    { title: 'Unlimited Exports', desc: 'Ekspor tanpa batas harian (bebas dari limit 30 per hari).', icon: <Flame className="w-4 h-4 text-[var(--accent)] shrink-0" /> },
+    { title: 'Resolusi Ultra HD (4x)', desc: 'Hasil tangkapan layar super tajam hingga 4x untuk layar retina.', icon: <Award className="w-4 h-4 text-[var(--accent)] shrink-0" /> },
     { title: 'Video Animasi (Segera Hadir)', desc: 'Akses eksklusif untuk ekspor format video MP4/WebM dengan animasi IN dan OUT.', icon: <Video className="w-4 h-4 text-[var(--accent)] shrink-0" /> },
     { title: 'Bebas Watermark & Iklan', desc: 'Screenshot murni, bersih, profesional untuk konten komersial.', icon: <Shield className="w-4 h-4 text-emerald-500 shrink-0" /> },
     { title: 'Prioritas Fitur Baru', desc: 'Request layout platform khusus langsung ditangani prioritas.', icon: <Crown className="w-4 h-4 text-[var(--accent)] shrink-0" /> },

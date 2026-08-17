@@ -27,13 +27,13 @@
     --button-hover: #F2F2F4;
     --input-bg: rgba(255, 255, 255, 0.9);
     --rail: #F4F4F5;
-    --accent: #B45309;
-    --accent-hover: #92400E;
+    --accent: #18181B;
+    --accent-hover: #27272A;
     --record: #DC2626;
     --text-muted: #6E6E76;
     --sidebar-bg: rgba(255, 255, 255, 0.9);
     --sidebar-border: rgba(0, 0, 0, 0.08);
-    --card-glow: rgba(180, 83, 9, 0.06);
+    --card-glow: rgba(24, 24, 27, 0.05);
   }
 
   .dark {
@@ -47,13 +47,13 @@
     --button-hover: #222226;
     --input-bg: rgba(255, 255, 255, 0.04);
     --rail: #17171A;
-    --accent: #FFB13D;
-    --accent-hover: #FFC56A;
+    --accent: #FAFAFA;
+    --accent-hover: #E4E4E7;
     --record: #FF3B30;
     --text-muted: #8B8B93;
     --sidebar-bg: rgba(14, 14, 17, 0.9);
     --sidebar-border: rgba(255, 255, 255, 0.08);
-    --card-glow: rgba(255, 177, 61, 0.05);
+    --card-glow: rgba(255, 255, 255, 0.05);
   }
 }
 

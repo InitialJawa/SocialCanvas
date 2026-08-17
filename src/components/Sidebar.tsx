@@ -384,7 +384,7 @@ export function Sidebar({
                 {/* Advanced Formatting Toolbar */}
                 <div className="flex items-center justify-between bg-[var(--root-bg)] border border-[var(--panel-border)] rounded-lg p-1">
                   <div className="flex gap-1">
-                    <button title={t('sidebar.formatting.highlight')} type="button" onMouseDown={(e) => { e.preventDefault(); applyFormat('highlight'); }} className="w-8 h-8 rounded-md hover:bg-[var(--panel-border)] flex items-center justify-center text-[var(--text-muted)] hover:text-yellow-500 transition-colors cursor-pointer">
+                    <button title={t('sidebar.formatting.highlight')} type="button" onMouseDown={(e) => { e.preventDefault(); applyFormat('highlight'); }} className="w-8 h-8 rounded-md hover:bg-[var(--panel-border)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors cursor-pointer">
                       <Highlighter className="w-4 h-4" />
                     </button>
                     <button title={t('sidebar.formatting.blur')} type="button" onMouseDown={(e) => { e.preventDefault(); applyFormat('blur'); }} className="w-8 h-8 rounded-md hover:bg-[var(--panel-border)] flex items-center justify-center text-[var(--text-muted)] hover:text-blue-500 transition-colors cursor-pointer">
