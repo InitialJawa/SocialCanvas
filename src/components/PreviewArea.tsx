@@ -69,6 +69,77 @@ export function PreviewArea({
     y.set(0);
   };
 
+  const canvas2dCtx = typeof document !== 'undefined' ? document.createElement('canvas').getContext('2d', { willReadFrequently: true }) : null;
+
+  const convertColorFunctionToRgb = (colorExpr: string): string => {
+    if (!colorExpr) return 'transparent';
+    if (!canvas2dCtx) return '#888888';
+    try {
+      canvas2dCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+      canvas2dCtx.fillStyle = colorExpr;
+      const res = canvas2dCtx.fillStyle;
+      if (res && !/(oklch|oklab|lch|lab|color-mix|color\()/i.test(res)) {
+        return res;
+      }
+    } catch {
+      // ignore
+    }
+    return '#888888';
+  };
+
+  const sanitizeCssString = (cssText: string): string => {
+    if (!cssText || !/(oklch|oklab|lch|lab|color-mix|color)\s*\(/i.test(cssText)) {
+      return cssText;
+    }
+    let prev = '';
+    let current = cssText;
+    let passes = 0;
+    while (current !== prev && passes < 6 && /(oklch|oklab|lch|lab|color-mix|color)\s*\(/i.test(current)) {
+      prev = current;
+      current = current.replace(/(oklch|oklab|lch|lab|color-mix|color)\s*\([^;{}"]+\)/gi, (match) => {
+        return convertColorFunctionToRgb(match);
+      });
+      passes++;
+    }
+    return current;
+  };
+
+  const inlineComputedStyles = (sourceEl: HTMLElement, targetEl: HTMLElement) => {
+    const sourceChildren = Array.from(sourceEl.querySelectorAll('*'));
+    const targetChildren = Array.from(targetEl.querySelectorAll('*'));
+
+    const sources = [sourceEl, ...sourceChildren];
+    const targets = [targetEl, ...targetChildren];
+
+    const len = Math.min(sources.length, targets.length);
+    const props = [
+      'color', 'background-color', 'border-color', 'border-top-color', 'border-right-color',
+      'border-bottom-color', 'border-left-color', 'border-width', 'border-style', 'border-radius',
+      'font-family', 'font-size', 'font-weight', 'font-style', 'line-height', 'letter-spacing',
+      'text-align', 'text-decoration', 'opacity', 'box-shadow', 'text-shadow', 'fill', 'stroke',
+      'object-fit', 'gap', 'row-gap', 'column-gap'
+    ];
+
+    for (let i = 0; i < len; i++) {
+      const src = sources[i] as HTMLElement;
+      const tgt = targets[i] as HTMLElement;
+      if (!src || !tgt) continue;
+
+      try {
+        const computed = window.getComputedStyle(src);
+        for (const prop of props) {
+          const val = computed.getPropertyValue(prop);
+          if (val) {
+            const cleanVal = sanitizeCssString(val);
+            tgt.style.setProperty(prop, cleanVal);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   const fetchImageAsBase64 = async (src: string): Promise<string> => {
     if (!src || src.startsWith('data:')) return src;
     try {
@@ -165,6 +236,9 @@ export function PreviewArea({
         })
       );
 
+      // Inline computed styles onto cloned nodes to convert and freeze color values
+      inlineComputedStyles(targetNode, clone);
+
       // Brief pause for layout settling
       await new Promise(r => setTimeout(r, 80));
 
@@ -178,7 +252,28 @@ export function PreviewArea({
           : null,
         logging: false,
         width: width,
-        height: height
+        height: height,
+        onclone: (clonedDoc) => {
+          // Sanitize all <style> elements in the cloned document to remove any oklch color declarations
+          const styleTags = Array.from(clonedDoc.querySelectorAll('style'));
+          styleTags.forEach((style) => {
+            if (style.textContent && /(oklch|oklab|lch|lab|color-mix)/i.test(style.textContent)) {
+              style.textContent = sanitizeCssString(style.textContent);
+            }
+          });
+
+          // Sanitize inline style attributes on all elements in clonedDoc
+          const allElements = Array.from(clonedDoc.querySelectorAll('*'));
+          allElements.forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            if (htmlEl.getAttribute && htmlEl.getAttribute('style')) {
+              const styleAttr = htmlEl.getAttribute('style') || '';
+              if (/(oklch|oklab|lch|lab|color-mix)/i.test(styleAttr)) {
+                htmlEl.setAttribute('style', sanitizeCssString(styleAttr));
+              }
+            }
+          });
+        }
       });
 
       return canvas;
