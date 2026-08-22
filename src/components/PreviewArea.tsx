@@ -6,7 +6,6 @@ import { YouTubePreview } from './previews/YouTubePreview';
 import { TwitterPreview } from './previews/TwitterPreview';
 import { KickLivePreview } from './previews/KickLivePreview';
 import { IGLivePreview } from './previews/IGLivePreview';
-import html2canvas from 'html2canvas';
 import { toPng, toCanvas } from 'html-to-image';
 import { Toolbar } from './Canvas/Toolbar';
 import { ExportCard } from './Canvas/ExportCard';
@@ -69,77 +68,6 @@ export function PreviewArea({
     y.set(0);
   };
 
-  const canvas2dCtx = typeof document !== 'undefined' ? document.createElement('canvas').getContext('2d', { willReadFrequently: true }) : null;
-
-  const convertColorFunctionToRgb = (colorExpr: string): string => {
-    if (!colorExpr) return 'transparent';
-    if (!canvas2dCtx) return '#888888';
-    try {
-      canvas2dCtx.fillStyle = 'rgba(0, 0, 0, 0)';
-      canvas2dCtx.fillStyle = colorExpr;
-      const res = canvas2dCtx.fillStyle;
-      if (res && !/(oklch|oklab|lch|lab|color-mix|color\()/i.test(res)) {
-        return res;
-      }
-    } catch {
-      // ignore
-    }
-    return '#888888';
-  };
-
-  const sanitizeCssString = (cssText: string): string => {
-    if (!cssText || !/(oklch|oklab|lch|lab|color-mix|color)\s*\(/i.test(cssText)) {
-      return cssText;
-    }
-    let prev = '';
-    let current = cssText;
-    let passes = 0;
-    while (current !== prev && passes < 6 && /(oklch|oklab|lch|lab|color-mix|color)\s*\(/i.test(current)) {
-      prev = current;
-      current = current.replace(/(oklch|oklab|lch|lab|color-mix|color)\s*\([^;{}"]+\)/gi, (match) => {
-        return convertColorFunctionToRgb(match);
-      });
-      passes++;
-    }
-    return current;
-  };
-
-  const inlineComputedStyles = (sourceEl: HTMLElement, targetEl: HTMLElement) => {
-    const sourceChildren = Array.from(sourceEl.querySelectorAll('*'));
-    const targetChildren = Array.from(targetEl.querySelectorAll('*'));
-
-    const sources = [sourceEl, ...sourceChildren];
-    const targets = [targetEl, ...targetChildren];
-
-    const len = Math.min(sources.length, targets.length);
-    const props = [
-      'color', 'background-color', 'border-color', 'border-top-color', 'border-right-color',
-      'border-bottom-color', 'border-left-color', 'border-width', 'border-style', 'border-radius',
-      'font-family', 'font-size', 'font-weight', 'font-style', 'line-height', 'letter-spacing',
-      'text-align', 'text-decoration', 'opacity', 'box-shadow', 'text-shadow', 'fill', 'stroke',
-      'object-fit', 'gap', 'row-gap', 'column-gap'
-    ];
-
-    for (let i = 0; i < len; i++) {
-      const src = sources[i] as HTMLElement;
-      const tgt = targets[i] as HTMLElement;
-      if (!src || !tgt) continue;
-
-      try {
-        const computed = window.getComputedStyle(src);
-        for (const prop of props) {
-          const val = computed.getPropertyValue(prop);
-          if (val) {
-            const cleanVal = sanitizeCssString(val);
-            tgt.style.setProperty(prop, cleanVal);
-          }
-        }
-      } catch {
-        // ignore
-      }
-    }
-  };
-
   const fetchImageAsBase64 = async (src: string): Promise<string> => {
     if (!src || src.startsWith('data:')) return src;
     try {
@@ -197,8 +125,9 @@ export function PreviewArea({
     noExports.forEach(el => el.remove());
 
     const rect = targetNode.getBoundingClientRect();
-    const width = Math.round(targetNode.offsetWidth || rect.width || 600);
-    const height = Math.round(targetNode.offsetHeight || rect.height || 400);
+    // Use floating point rect width to prevent fractional pixel wrap issues
+    const width = rect.width;
+    const height = rect.height;
 
     // Create isolated offscreen container
     const container = document.createElement('div');
@@ -207,14 +136,14 @@ export function PreviewArea({
     container.style.top = '-9999px';
     container.style.zIndex = '-9999';
     container.style.width = `${width}px`;
-    container.style.height = `${height}px`;
-    container.style.overflow = 'hidden';
+    // Height is left auto to allow it to grow if content wraps
+    container.style.overflow = 'visible';
     container.style.background = 'transparent';
 
     clone.style.transform = 'none';
     clone.style.margin = '0';
     clone.style.width = `${width}px`;
-    clone.style.height = `${height}px`;
+    // Height is left auto on clone as well
 
     container.appendChild(clone);
     document.body.appendChild(container);
@@ -236,43 +165,25 @@ export function PreviewArea({
         })
       );
 
-      // Inline computed styles onto cloned nodes to convert and freeze color values
-      inlineComputedStyles(targetNode, clone);
-
       // Brief pause for layout settling
       await new Promise(r => setTimeout(r, 80));
 
-      const isJpg = format === 'jpg';
-      const canvas = await html2canvas(clone, {
-        scale: exportScale || 2,
-        useCORS: true,
-        allowTaint: false, // CRITICAL: false to prevent DOMException on export
-        backgroundColor: isJpg 
-          ? (state.theme === 'dark' ? '#121212' : '#ffffff')
-          : null,
-        logging: false,
-        width: width,
-        height: height,
-        onclone: (clonedDoc) => {
-          // Sanitize all <style> elements in the cloned document to remove any oklch color declarations
-          const styleTags = Array.from(clonedDoc.querySelectorAll('style'));
-          styleTags.forEach((style) => {
-            if (style.textContent && /(oklch|oklab|lch|lab|color-mix)/i.test(style.textContent)) {
-              style.textContent = sanitizeCssString(style.textContent);
-            }
-          });
+      const cloneWidth = clone.offsetWidth || width;
+      const cloneHeight = clone.offsetHeight || height;
 
-          // Sanitize inline style attributes on all elements in clonedDoc
-          const allElements = Array.from(clonedDoc.querySelectorAll('*'));
-          allElements.forEach((el) => {
-            const htmlEl = el as HTMLElement;
-            if (htmlEl.getAttribute && htmlEl.getAttribute('style')) {
-              const styleAttr = htmlEl.getAttribute('style') || '';
-              if (/(oklch|oklab|lch|lab|color-mix)/i.test(styleAttr)) {
-                htmlEl.setAttribute('style', sanitizeCssString(styleAttr));
-              }
-            }
-          });
+      const isJpg = format === 'jpg';
+      const bgColor = isJpg ? (state.theme === 'dark' ? '#121212' : '#ffffff') : 'transparent';
+      
+      const canvas = await toCanvas(clone, {
+        pixelRatio: exportScale || 2,
+        backgroundColor: bgColor,
+        width: cloneWidth,
+        height: cloneHeight,
+        style: {
+          transform: 'none',
+          margin: '0',
+          width: `${cloneWidth}px`,
+          height: `${cloneHeight}px`
         }
       });
 
